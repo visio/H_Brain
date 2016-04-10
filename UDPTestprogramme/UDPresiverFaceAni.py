@@ -2,7 +2,7 @@ import socket
 
 
 UDP_IP = "10.0.1.4"
-UDP_PORT = 11001
+UDP_PORT = 11000
  
 sock = socket.socket(socket.AF_INET, # Internet
                       socket.SOCK_DGRAM) # UDP
