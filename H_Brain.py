@@ -47,8 +47,9 @@ adress = namedtuple("adress", "UDP_IN_IP UDP_IN_PORT")
 
 
 ############################## UDP IP/Port Einstellungen ##############################
-#Nur eine Block der folgenden UDP einstellungen sollte aktiv sein. Rest mit 3mal Gaensefueschen auskomentieren!
+#Nur ein Block der folgenden UDP Einstellungen sollte aktiv sein. Rest mit Fueschen von drei Gaensen auskomentieren!
 """
+
 ####################### Mac an der Hochschule ####################################
 HBrainAD      = adress(UDP_IN_IP = "134.103.205.72", UDP_IN_PORT = 11005)
 #  =>Alle Module senden bitte an die HBrain IN Adresse
@@ -58,7 +59,7 @@ TTSAD         = adress(UDP_IN_IP = "134.103.205.72", UDP_IN_PORT = 11001)
 MIRAAD        = adress(UDP_IN_IP = "134.103.205.72", UDP_IN_PORT = 11002)
 ##################################################################################
 """
-
+"""
 #######################  Mac bei mir zuhause ###################################
 HBrainAD      = adress(UDP_IN_IP = "10.0.1.4", UDP_IN_PORT = 11005)
 #  =>Alle Module senden bitte an die HBrain IN Adresse
@@ -67,7 +68,16 @@ EmoFaniAD     = adress(UDP_IN_IP = "10.0.1.4", UDP_IN_PORT = 11000)
 TTSAD         = adress(UDP_IN_IP = "10.0.1.4", UDP_IN_PORT = 11001)
 MIRAAD        = adress(UDP_IN_IP = "10.0.1.4", UDP_IN_PORT = 11002)
 #################################################################################
+"""
 
+#######################  NUC an FritzBox ########################################
+HBrainAD      = adress(UDP_IN_IP = "192.168.188.22", UDP_IN_PORT = 11005)
+#  =>Alle Module senden bitte an die HBrain IN Adresse
+MasterBrainAD = adress(UDP_IN_IP = "192.168.188.24", UDP_IN_PORT = 8888)
+EmoFaniAD     = adress(UDP_IN_IP = "192.168.188.22", UDP_IN_PORT = 11000)
+TTSAD         = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 5555)
+MIRAAD        = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 8888)
+#################################################################################
 
 
 
@@ -95,10 +105,10 @@ while True:
 #Input string von allen moeglich Modulen
     data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
     now = (int(time.time() * 1000))
-    print "received message:", data
-    print data[:16]
-    #print data[:14]
-    print personFlag
+    #print "received message:", data
+    #print data[:16]
+    #print data[:13]
+    #print personFlag
     
     
     if data[:16] == "#HBRAIN##PERSON#":
@@ -121,8 +131,7 @@ while True:
     elif data[:14] == "#HBRAIN##TEXT#":
         textString += (data[14:] + " ")
 
-
-    if data == "#TTS#finished" or sprechen == 0: #Rueckgabe wann TTS fertig ist
+    if data[:13] == "#TTS#finished" or sprechen == 0: #Rueckgabe wann TTS fertig ist
         sprechen = 0
         
         if textString == "":
