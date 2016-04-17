@@ -8,9 +8,9 @@
     
     H_Brain empfaengt:
     MasterBrain:
-        "#HBRAIN##TEXT#ich bin ein Test{35,27}[:-)]schaue hier{Person}[:-|]" (Im Gespraechstring darf Text vorkommen, der an TTS weitergeleitet wird {} sind Positoen die angeschaut werden sollen und [] sind Emotionen. Nichts wird automatisch rueckgestellt! Gespraechstrings werden der Reihe nach bearbeitet (kein Abbruch, bei neuem Gespraechstring)
+        "#BRAIN##TEXT#ich bin ein Test{35,27}[:-)]schaue hier{Person}[:-|]" (Im Gespraechstring darf Text vorkommen, der an TTS weitergeleitet wird {} sind Positoen die angeschaut werden sollen und [] sind Emotionen. Nichts wird automatisch rueckgestellt! Gespraechstrings werden der Reihe nach bearbeitet (kein Abbruch, bei neuem Gespraechstring)
     
-        "#HBRAIN##PERSON#{67;36}" (Einen Punkt an dem sich die der Aktuelle Gespraechspartner befindet. Kann staendig zwischdrin gesedet werden. Durch {Person} im Gespraechstring schaut Leonie immer den Gespraechspartner an. nach dem ein seperater Punkt angeschaut wurde, muss erst wieder {Person} gesendet werden, damit Leonie wieder den Gespraechspartner anschaut.
+        "#BRAIN##PERSON#{67;36}" (Einen Punkt an dem sich die der Aktuelle Gespraechspartner befindet. Kann staendig zwischdrin gesedet werden. Durch {Person} im Gespraechstring schaut Leonie immer den Gespraechspartner an. nach dem ein seperater Punkt angeschaut wurde, muss erst wieder {Person} gesendet werden, damit Leonie wieder den Gespraechspartner anschaut.
     
     TTS:
         "#TTS#finished" muss gesendet werden, wenn TTS fertig mit dem sprechen ist!
@@ -18,8 +18,8 @@
     
     H_Brain sendet:
     MasterBrain
-        "#HBRAIN#busy" (beschaeftigt)
-        "#HBRAIN#free" (Fertig)
+        "#HBRAIN#1" (beschaeftigt)
+        "#HBRAIN#0" (Fertig)
     
     TTS:
         "blabla" (reine Textstrings)
@@ -30,8 +30,9 @@
         ""t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=neutral%100"" (Emotionen)
     
     Mira: (noch nicht fertig)
-        "Hx"(Kopfdrehung)
-        "Bx"(Bodydrehung)
+    Rotate Body:	 #NAV##ROTBODY#[angle:int]#	//#NAV##ROTBODY#80# clockwise
+    Rotate Head:	 #NAV##ROTHEAD#[angle:int]#	//#NAV##ROTHEAD#90#
+
     _______________________________________________________________________________________________
 """
 
@@ -47,8 +48,9 @@ adress = namedtuple("adress", "UDP_IN_IP UDP_IN_PORT")
 
 
 ############################## UDP IP/Port Einstellungen ##############################
-#Nur eine Block der folgenden UDP einstellungen sollte aktiv sein. Rest mit 3mal Gaensefueschen auskomentieren!
+#Nur ein Block der folgenden UDP Einstellungen sollte aktiv sein. Rest mit Fueschen von drei Gaensen auskomentieren!
 """
+
 ####################### Mac an der Hochschule ####################################
 HBrainAD      = adress(UDP_IN_IP = "134.103.205.72", UDP_IN_PORT = 11005)
 #  =>Alle Module senden bitte an die HBrain IN Adresse
@@ -59,16 +61,25 @@ MIRAAD        = adress(UDP_IN_IP = "134.103.205.72", UDP_IN_PORT = 11002)
 ##################################################################################
 """
 
-#######################  Mac bei mir zuhause ###################################
-HBrainAD      = adress(UDP_IN_IP = "10.0.1.4", UDP_IN_PORT = 11005)
+"""
+#######################  NUC an FritzBox ########################################
+HBrainAD      = adress(UDP_IN_IP = "192.168.188.22", UDP_IN_PORT = 11005)
 #  =>Alle Module senden bitte an die HBrain IN Adresse
-MasterBrainAD = adress(UDP_IN_IP = "10.0.1.4", UDP_IN_PORT = 11010)
-EmoFaniAD     = adress(UDP_IN_IP = "10.0.1.4", UDP_IN_PORT = 11000)
-TTSAD         = adress(UDP_IN_IP = "10.0.1.4", UDP_IN_PORT = 11001)
-MIRAAD        = adress(UDP_IN_IP = "10.0.1.4", UDP_IN_PORT = 11002)
+MasterBrainAD = adress(UDP_IN_IP = "192.168.188.22", UDP_IN_PORT = 8888)
+EmoFaniAD     = adress(UDP_IN_IP = "192.168.188.22", UDP_IN_PORT = 11000)
+TTSAD         = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 5555)
+MIRAAD        = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 8888)
 #################################################################################
+"""
 
-
+#######################  NUC an FritzBox ########################################
+HBrainAD      = adress(UDP_IN_IP = "134.103.120.127", UDP_IN_PORT = 11005)
+#  =>Alle Module senden bitte an die HBrain IN Adresse
+MasterBrainAD = adress(UDP_IN_IP = "134.103.120.127", UDP_IN_PORT = 8888)
+EmoFaniAD     = adress(UDP_IN_IP = "134.103.120.127", UDP_IN_PORT = 11000)
+TTSAD         = adress(UDP_IN_IP = "134.103.120.127", UDP_IN_PORT = 5555)
+MIRAAD        = adress(UDP_IN_IP = "134.103.120.127", UDP_IN_PORT = 8888)
+#################################################################################
 
 
 print "HBrainAD     ", HBrainAD
@@ -96,15 +107,13 @@ while True:
     data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
     now = (int(time.time() * 1000))
     print "received message:", data
-    print data[:16]
-    #print data[:14]
-    print personFlag
+    #print personFlag
     
     
-    if data[:16] == "#HBRAIN##PERSON#":
+    if data[:15] == "#BRAIN##PERSON#":
         print "Augenposition wird veraendert"
         #Augenposition UDP (FaceAni)
-        data = data [16:]
+        data = data [15:]
         b = data.find('}')
         Augenposition = data[1:b]
         print "Position: ", Augenposition
@@ -118,20 +127,15 @@ while True:
             sock.sendto(Augenposition, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
 
 
-    elif data[:14] == "#HBRAIN##TEXT#":
-        textString += (data[14:] + " ")
+    elif data[:13] == "#BRAIN##TEXT#":
+        textString += (" " + data[13:])
 
-
-    if data == "#TTS#finished" or sprechen == 0: #Rueckgabe wann TTS fertig ist
+    if data[:13] == "#TTS#finished" or sprechen == 0: #Rueckgabe wann TTS fertig ist
+	#print "Ausgesprochen"
         sprechen = 0
         
-        if textString == "":
-            TTS = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=False")
-            sock.sendto(TTS, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
-            sock.sendto("#HBRAIN#free", (MasterBrainAD.UDP_IN_IP, MasterBrainAD.UDP_IN_PORT))
-            continue
         
-        while sprechen == 0:
+        while sprechen == 0 and textString != "":
             emotion = 0
             position = 0
 
@@ -167,7 +171,7 @@ while True:
 
 
 #Sprach Weiterleitung
-            if not position and not emotion:
+            if not position and not emotion and TTS != " ":
                 
                 #Sprache UDP (TTS)
                 print TTS
@@ -177,7 +181,7 @@ while True:
                 TTS = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=True")
                 sock.sendto(TTS, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
                 sprechen = 1
-                sock.sendto("#HBRAIN#busy", (MasterBrainAD.UDP_IN_IP, MasterBrainAD.UDP_IN_PORT))
+                sock.sendto("#HBRAIN#1", (MasterBrainAD.UDP_IN_IP, MasterBrainAD.UDP_IN_PORT))
 
 
 #Emotion Weiterleitung
@@ -218,5 +222,9 @@ while True:
                 position = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazey=" + str(y))
                 sock.sendto(position, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
 
-            if textString == "":
-                break
+            
+        if textString == "" and sprechen == 0:
+            TTS = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=False")
+            sock.sendto(TTS, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+            sock.sendto("#HBRAIN#0", (MasterBrainAD.UDP_IN_IP, MasterBrainAD.UDP_IN_PORT))
+            continue
