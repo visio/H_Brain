@@ -50,7 +50,6 @@ adress = namedtuple("adress", "UDP_IN_IP UDP_IN_PORT")
 ############################## UDP IP/Port Einstellungen ##############################
 #Nur ein Block der folgenden UDP Einstellungen sollte aktiv sein. Rest mit Fueschen von drei Gaensen auskomentieren!
 """
-
 ####################### Mac an der Hochschule ####################################
 HBrainAD      = adress(UDP_IN_IP = "134.103.205.72", UDP_IN_PORT = 11005)
 #  =>Alle Module senden bitte an die HBrain IN Adresse
@@ -60,10 +59,10 @@ TTSAD         = adress(UDP_IN_IP = "134.103.205.72", UDP_IN_PORT = 11001)
 MIRAAD        = adress(UDP_IN_IP = "134.103.205.72", UDP_IN_PORT = 11002)
 ##################################################################################
 """
-
 """
-#######################  NUC an FritzBox ########################################
-HBrainAD      = adress(UDP_IN_IP = "192.168.188.22", UDP_IN_PORT = 11005)
+#######################  Mac bei mir zuhause ###################################
+HBrainAD      = adress(UDP_IN_IP = "10.0.1.4", UDP_IN_PORT = 11005)
+>>>>>>> origin/master
 #  =>Alle Module senden bitte an die HBrain IN Adresse
 MasterBrainAD = adress(UDP_IN_IP = "192.168.188.22", UDP_IN_PORT = 8888)
 EmoFaniAD     = adress(UDP_IN_IP = "192.168.188.22", UDP_IN_PORT = 11000)
@@ -73,13 +72,14 @@ MIRAAD        = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 8888)
 """
 
 #######################  NUC an FritzBox ########################################
-HBrainAD      = adress(UDP_IN_IP = "134.103.120.127", UDP_IN_PORT = 11005)
+HBrainAD      = adress(UDP_IN_IP = "192.168.188.22", UDP_IN_PORT = 11005)
 #  =>Alle Module senden bitte an die HBrain IN Adresse
-MasterBrainAD = adress(UDP_IN_IP = "134.103.120.127", UDP_IN_PORT = 8888)
-EmoFaniAD     = adress(UDP_IN_IP = "134.103.120.127", UDP_IN_PORT = 11000)
-TTSAD         = adress(UDP_IN_IP = "134.103.120.127", UDP_IN_PORT = 5555)
-MIRAAD        = adress(UDP_IN_IP = "134.103.120.127", UDP_IN_PORT = 8888)
+MasterBrainAD = adress(UDP_IN_IP = "192.168.188.24", UDP_IN_PORT = 8888)
+EmoFaniAD     = adress(UDP_IN_IP = "192.168.188.22", UDP_IN_PORT = 11000)
+TTSAD         = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 5555)
+MIRAAD        = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 8888)
 #################################################################################
+
 
 
 print "HBrainAD     ", HBrainAD
@@ -103,7 +103,7 @@ sock.bind((HBrainAD.UDP_IN_IP, HBrainAD.UDP_IN_PORT))
 while True:
     
     
-#Input string von allen moeglich Modulen
+    #Input string von allen moeglich Modulen
     data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
     now = (int(time.time() * 1000))
     print "received message:", data
