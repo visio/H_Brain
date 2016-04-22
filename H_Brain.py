@@ -51,16 +51,16 @@ adress = namedtuple("adress", "UDP_IN_IP UDP_IN_PORT")
 
 ############################## UDP IP/Port Einstellungen ##############################
 #Nur ein Block der folgenden UDP Einstellungen sollte aktiv sein. Rest mit Fueschen von drei Gaensen auskomentieren!
-"""
+
 ####################### Mac an der Hochschule ####################################
-HBrainAD      = adress(UDP_IN_IP = "134.103.205.72", UDP_IN_PORT = 11005)
+HBrainAD      = adress(UDP_IN_IP = "134.103.204.164", UDP_IN_PORT = 11005)
 #  =>Alle Module senden bitte an die HBrain IN Adresse
-MasterBrainAD = adress(UDP_IN_IP = "134.103.205.72", UDP_IN_PORT = 11010)
-EmoFaniAD     = adress(UDP_IN_IP = "134.103.205.72", UDP_IN_PORT = 11000)
-TTSAD         = adress(UDP_IN_IP = "134.103.205.72", UDP_IN_PORT = 11001)
-MIRAAD        = adress(UDP_IN_IP = "134.103.205.72", UDP_IN_PORT = 11002)
+MasterBrainAD = adress(UDP_IN_IP = "134.103.204.164", UDP_IN_PORT = 11010)
+EmoFaniAD     = adress(UDP_IN_IP = "134.103.204.164", UDP_IN_PORT = 11000)
+TTSAD         = adress(UDP_IN_IP = "134.103.204.164", UDP_IN_PORT = 11001)
+MIRAAD        = adress(UDP_IN_IP = "134.103.204.164", UDP_IN_PORT = 11002)
 ##################################################################################
-"""
+
 """
 #######################  Mac bei mir zuhause ###################################
 HBrainAD      = adress(UDP_IN_IP = "10.0.1.4", UDP_IN_PORT = 11005)
@@ -72,16 +72,16 @@ TTSAD         = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 5555)
 MIRAAD        = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 8888)
 #################################################################################
 """
-
+"""
 #######################  NUC an FritzBox ########################################
-HBrainAD      = adress(UDP_IN_IP = "192.168.188.22", UDP_IN_PORT = 11005)
+HBrainAD      = adress(UDP_IN_IP = "192.168.188.11", UDP_IN_PORT = 11005)
 #  =>Alle Module senden bitte an die HBrain IN Adresse
-MasterBrainAD = adress(UDP_IN_IP = "192.168.188.24", UDP_IN_PORT = 8888)
-EmoFaniAD     = adress(UDP_IN_IP = "192.168.188.22", UDP_IN_PORT = 11000)
-TTSAD         = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 5555)
-MIRAAD        = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 8888)
+MasterBrainAD = adress(UDP_IN_IP = "192.168.188.23", UDP_IN_PORT = 8888)
+EmoFaniAD     = adress(UDP_IN_IP = "192.168.188.11", UDP_IN_PORT = 11000)
+TTSAD         = adress(UDP_IN_IP = "192.168.188.10", UDP_IN_PORT = 5555)
+MIRAAD        = adress(UDP_IN_IP = "192.168.188.10", UDP_IN_PORT = 8888)
 #################################################################################
-
+"""
 
 
 print "HBrainAD     ", HBrainAD
@@ -100,6 +100,7 @@ personFlag = True
 personX ="0"
 personY ="0"
 messageReceived = 1
+data = ""
 try:
     sock = socket.socket(socket.AF_INET, # Internet
                          socket.SOCK_DGRAM) # UDP
@@ -113,8 +114,7 @@ def empfangen():
     try:
         #Input string von allen moeglich Modulen
         data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
-        now = (int(time.time() * 1000))
-        print "received message:", data
+        uerbergabe.put(data)
     
     except:
         print "fehler beim empfangen!"
@@ -124,21 +124,24 @@ while True:
     
     if __name__ == '__main__':
         # Start bar as a process
+        now = (int(time.time() * 1000))
+        uerbergabe = multiprocessing.Queue()
         p = multiprocessing.Process(target=empfangen)
         p.start()
         while p.is_alive():
             # Wait for 0.5 seconds or until process finishes
             p.join(0.5)
-    
+        
             # If thread is still active
             if messageReceived == 0:
                 print "erneueter Versuch TTS zu erreichen!"
                 sock.sendto(TTS, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
-                # Terminate
-                # p.terminate()
-                p.join()
-
-    
+                
+                
+    data = uerbergabe.get()
+    if data[:13] == "#TTS#received": #Rueckgabe wann TTS Nachricht empfangen hat
+        messageReceived = 1
+    print "received message:", data
     
     
     if data[:15] == "#BRAIN##PERSON#":
@@ -161,8 +164,6 @@ while True:
     elif data[:13] == "#BRAIN##TEXT#":
         textString += (" " + data[13:])
 
-    if data[:13] == "#TTS#received": #Rueckgabe wann TTS Nachricht empfangen hat
-        messageReceived = 1
 
 
     if data[:13] == "#TTS#finished" or sprechen == 0: #Rueckgabe wann TTS fertig ist
