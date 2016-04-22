@@ -14,12 +14,13 @@
     
     TTS:
         "#TTS#finished" muss gesendet werden, wenn TTS fertig mit dem sprechen ist!
+        "#TTS#received" muss gesendet werden, wenn TTS die Nachricht empfangen hat!
     _______________________________________________________________________________________________
     
     H_Brain sendet:
     MasterBrain
-        "#HBRAIN#1" (beschaeftigt)
-        "#HBRAIN#0" (Fertig)
+        "#HBRAIN#1#" (beschaeftigt)
+        "#HBRAIN#0#" (Fertig)
     
     TTS:
         "blabla" (reine Textstrings)
@@ -41,6 +42,7 @@ import socket
 import sys
 import time
 from collections import namedtuple
+import multiprocessing
 
 adress = namedtuple("adress", "UDP_IN_IP UDP_IN_PORT")
 
@@ -89,25 +91,54 @@ print "TTS          ", TTSAD
 print "MIRA         ", MIRAAD
 
 
+
+
+
 sprechen = 0
 textString = ""
 personFlag = True
 personX ="0"
 personY ="0"
+messageReceived = 1
+try:
+    sock = socket.socket(socket.AF_INET, # Internet
+                         socket.SOCK_DGRAM) # UDP
+    sock.bind((HBrainAD.UDP_IN_IP, HBrainAD.UDP_IN_PORT))
+except:
+    print "Irgendeine IPadresse ist nicht ansprechbar / falsch"
+    exit()
 
-sock = socket.socket(socket.AF_INET, # Internet
-                     socket.SOCK_DGRAM) # UDP
-sock.bind((HBrainAD.UDP_IN_IP, HBrainAD.UDP_IN_PORT))
+
+def empfangen():
+    try:
+        #Input string von allen moeglich Modulen
+        data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
+        now = (int(time.time() * 1000))
+        print "received message:", data
+    
+    except:
+        print "fehler beim empfangen!"
 
 
 while True:
     
+    if __name__ == '__main__':
+        # Start bar as a process
+        p = multiprocessing.Process(target=empfangen)
+        p.start()
+        while p.is_alive():
+            # Wait for 0.5 seconds or until process finishes
+            p.join(0.5)
     
-    #Input string von allen moeglich Modulen
-    data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
-    now = (int(time.time() * 1000))
-    print "received message:", data
-    #print personFlag
+            # If thread is still active
+            if messageReceived == 0:
+                print "erneueter Versuch TTS zu erreichen!"
+                sock.sendto(TTS, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+                # Terminate
+                # p.terminate()
+                p.join()
+
+    
     
     
     if data[:15] == "#BRAIN##PERSON#":
@@ -129,6 +160,10 @@ while True:
 
     elif data[:13] == "#BRAIN##TEXT#":
         textString += (" " + data[13:])
+
+    if data[:13] == "#TTS#received": #Rueckgabe wann TTS Nachricht empfangen hat
+        messageReceived = 1
+
 
     if data[:13] == "#TTS#finished" or sprechen == 0: #Rueckgabe wann TTS fertig ist
 	#print "Ausgesprochen"
@@ -174,14 +209,16 @@ while True:
             if not position and not emotion and TTS != " ":
                 
                 #Sprache UDP (TTS)
+                time.sleep(0.05)
                 print TTS
                 sock.sendto(TTS, (TTSAD.UDP_IN_IP, TTSAD.UDP_IN_PORT))
+                messageReceived = 0
                 
                 #Mundbewegug
-                TTS = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=True")
-                sock.sendto(TTS, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+                EmoFaniString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=True")
+                sock.sendto(EmoFaniString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
                 sprechen = 1
-                sock.sendto("#HBRAIN#1", (MasterBrainAD.UDP_IN_IP, MasterBrainAD.UDP_IN_PORT))
+                sock.sendto("#HBRAIN#1#", (MasterBrainAD.UDP_IN_IP, MasterBrainAD.UDP_IN_PORT))
 
 
 #Emotion Weiterleitung
@@ -250,7 +287,7 @@ while True:
 
             
         if textString == "" and sprechen == 0:
-            TTS = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=False")
-            sock.sendto(TTS, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
-            sock.sendto("#HBRAIN#0", (MasterBrainAD.UDP_IN_IP, MasterBrainAD.UDP_IN_PORT))
+            EmoFaniString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=False")
+            sock.sendto(EmoFaniString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+            sock.sendto("#HBRAIN#0#", (MasterBrainAD.UDP_IN_IP, MasterBrainAD.UDP_IN_PORT))
             continue
