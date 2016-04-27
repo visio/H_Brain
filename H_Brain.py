@@ -48,7 +48,7 @@ adress = namedtuple("adress", "UDP_IN_IP UDP_IN_PORT")
 
 
 
-
+"""
 ############################## UDP IP/Port Einstellungen ##############################
 #Nur ein Block der folgenden UDP Einstellungen sollte aktiv sein. Rest mit Fueschen von drei Gaensen auskomentieren!
 
@@ -60,21 +60,20 @@ EmoFaniAD     = adress(UDP_IN_IP = "134.103.204.164", UDP_IN_PORT = 11000)
 TTSAD         = adress(UDP_IN_IP = "134.103.204.164", UDP_IN_PORT = 11001)
 MIRAAD        = adress(UDP_IN_IP = "134.103.204.164", UDP_IN_PORT = 11002)
 ##################################################################################
-
 """
+
 #######################  Mac bei mir zuhause ###################################
 HBrainAD      = adress(UDP_IN_IP = "10.0.1.4", UDP_IN_PORT = 11005)
->>>>>>> origin/master
 #  =>Alle Module senden bitte an die HBrain IN Adresse
 MasterBrainAD = adress(UDP_IN_IP = "192.168.188.22", UDP_IN_PORT = 8888)
 EmoFaniAD     = adress(UDP_IN_IP = "192.168.188.22", UDP_IN_PORT = 11000)
 TTSAD         = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 5555)
 MIRAAD        = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 8888)
 #################################################################################
-"""
+
 """
 #######################  NUC an FritzBox ########################################
-HBrainAD      = adress(UDP_IN_IP = "192.168.188.11", UDP_IN_PORT = 11005)
+HBrainAD      = adress(UDP_IN_IP = "192.168.188.108", UDP_IN_PORT = 11005)
 #  =>Alle Module senden bitte an die HBrain IN Adresse
 MasterBrainAD = adress(UDP_IN_IP = "192.168.188.23", UDP_IN_PORT = 8888)
 EmoFaniAD     = adress(UDP_IN_IP = "192.168.188.11", UDP_IN_PORT = 11000)
@@ -90,17 +89,15 @@ print "EmoFani      ", EmoFaniAD
 print "TTS          ", TTSAD
 print "MIRA         ", MIRAAD
 
-
-
-
-
-sprechen = 0
+TTS =""
 textString = ""
 personFlag = True
 personX ="0"
 personY ="0"
 messageReceived = 1
-data = ""
+position=""
+emotion=""
+now = (int(time.time() * 1000))
 try:
     sock = socket.socket(socket.AF_INET, # Internet
                          socket.SOCK_DGRAM) # UDP
@@ -110,84 +107,76 @@ except:
     exit()
 
 
+
+#Input string von allen moeglich Modulen
 def empfangen():
-    try:
-        #Input string von allen moeglich Modulen
-        data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
-        uerbergabe.put(data)
+    global TTS
+    sprechen = 0
+    textString = ""
+    personFlag = True
+    global personX
+    global personY
+    global messageReceived
+    data = ""
+    global position
+    global emotion
+    global now
     
-    except:
-        print "fehler beim empfangen!"
-
-
-while True:
+    global HBrainAD
+    global MasterBrainAD
+    global EmoFaniAD
+    global TTSAD
+    global MIRAAD
     
-    if __name__ == '__main__':
-        # Start bar as a process
-        now = (int(time.time() * 1000))
-        uerbergabe = multiprocessing.Queue()
-        p = multiprocessing.Process(target=empfangen)
-        p.start()
-        while p.is_alive():
-            # Wait for 0.5 seconds or until process finishes
-            p.join(0.5)
-        
-            # If thread is still active
-            if messageReceived == 0:
-                print "erneueter Versuch TTS zu erreichen!"
-                sock.sendto(TTS, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
-                
-                
-    data = uerbergabe.get()
+    
+    data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
+    print "received message:", data
+    messageReceived=0
     if data[:13] == "#TTS#received": #Rueckgabe wann TTS Nachricht empfangen hat
         messageReceived = 1
-    print "received message:", data
-    
-    
-    if data[:15] == "#BRAIN##PERSON#":
-        print "Augenposition wird veraendert"
-        #Augenposition UDP (FaceAni)
+        
+    elif data[:15] == "#BRAIN##PERSON#":  #Augenposition UDP (FaceAni)
         data = data [15:]
         b = data.find('}')
         Augenposition = data[1:b]
-        print "Position: ", Augenposition
         b = Augenposition.find(';')
         personX=Augenposition[:b]
         personY=Augenposition[b+1:]
-        if personFlag == True:
+        if personFlag:
+            print "Augenposition wird veraendert: ", Augenposition
             Augenposition = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazex=" + str(personX))
             sock.sendto(Augenposition, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
             Augenposition = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazey=" + str(personY))
             sock.sendto(Augenposition, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
-
+        else:
+            print "Augenposition wird gespeichert: ", Augenposition
 
     elif data[:13] == "#BRAIN##TEXT#":
         textString += (" " + data[13:])
 
-
-
-    if data[:13] == "#TTS#finished" or sprechen == 0: #Rueckgabe wann TTS fertig ist
-	#print "Ausgesprochen"
+    if data[:13] == "#TTS#finished" or not sprechen: #Rueckgabe wann TTS fertig ist
         sprechen = 0
         
-        
         while sprechen == 0 and textString != "":
-            emotion = 0
-            position = 0
-
             try:
                 if textString[0] == ' ':
                     klappt = 0 #leere Anweisung
             except:
                 textString = ""
                 break
-        
+            
+            
             if textString[0] == '[':
-                emotion = 1
-
-            elif textString[0] == '{':
-                position = 1
-        
+                a = textString.find(']')
+                emotion = textString[1:a]
+                textString = textString[(a+1):]
+                emotionenKlasifizierung()
+            elif textString[0] == '{':  #Blickposition Weiterleitung
+                b = textString.find('}')
+                position = textString[1:b]
+                textString = textString[b+1:]
+                if not KOPFUNDAUGEN.is_alive():
+                    KOPFUNDAUGEN.run()
             else:
                 a = textString.find('[')
                 b = textString.find('{')
@@ -204,91 +193,131 @@ while True:
                 else:
                     TTS = textString
                     textString = ""
-
-
-#Sprach Weiterleitung
-            if not position and not emotion and TTS != " ":
-                
-                #Sprache UDP (TTS)
-                time.sleep(0.05)
-                print TTS
-                sock.sendto(TTS, (TTSAD.UDP_IN_IP, TTSAD.UDP_IN_PORT))
-                messageReceived = 0
-                
-                #Mundbewegug
-                EmoFaniString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=True")
-                sock.sendto(EmoFaniString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
-                sprechen = 1
-                sock.sendto("#HBRAIN#1#", (MasterBrainAD.UDP_IN_IP, MasterBrainAD.UDP_IN_PORT))
-
-
-#Emotion Weiterleitung
-            if emotion:
-                #Emotions UDP (FaceAni)
-                a = textString.find(']')
-                emotion = textString[1:a]
-                textString = textString[(a+1):]
-                print "Emotion: ", emotion
-                if emotion == 'neutral' or emotion == ':-|':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=neutral%100")
-                
-                elif emotion == 'happy' or emotion == ':-)':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=happy%100")
-
-                elif emotion == 'sad' or emotion == ':-(':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=sad%100")
-                
-                elif emotion == 'attentive':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=attentive%100")
-                
-                elif emotion == 'excited' or emotion == ':-O':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=excited%100")
-                
-                elif emotion == 'relaxed':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=relaxed%100")
-                
-                elif emotion == 'sleepy':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=sleepy%100")
-                
-                elif emotion == 'frustrated' or emotion == '-.-':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=frustrated%100")
-                
-                elif emotion == 'idle:true':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=true")
-                
-                elif emotion == 'idle:false':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=false")
-
-                sock.sendto(emotion, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
-
-
-
-#Blickposition Weiterleitung
-            if position:
-                #Augenposition UDP (FaceAni)
-                b = textString.find('}')
-                position = textString[1:b]
-                textString = textString[b+1:]
-                print "Position: ", position
-                if position == "Person":
-                    personFlag = True
-                    x = personX
-                    y = personY
-                else:
-                    personFlag = False
-                    b = position.find(';')
-                    x=position[:b]
-                    y=position[b+1:]
-
-
-                position = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazex=" + str(x))
-                sock.sendto(position, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
-                position = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazey=" + str(y))
-                sock.sendto(position, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
-
             
-        if textString == "" and sprechen == 0:
-            EmoFaniString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=False")
-            sock.sendto(EmoFaniString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
-            sock.sendto("#HBRAIN#0#", (MasterBrainAD.UDP_IN_IP, MasterBrainAD.UDP_IN_PORT))
-            continue
+                if TTS != " ":  #Sprach Weiterleitung
+                    
+                    #Sprache UDP (TTS)
+                    time.sleep(0.05)
+                    print TTS
+                    sock.sendto(TTS, (TTSAD.UDP_IN_IP, TTSAD.UDP_IN_PORT))
+                    #Mundbewegug
+                    EmoFaniString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=True")
+                    sock.sendto(EmoFaniString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+                    messageReceived = 0
+                    sprechen = 1
+                    sock.sendto("#HBRAIN#1#", (MasterBrainAD.UDP_IN_IP, MasterBrainAD.UDP_IN_PORT))
+
+    if textString == "" and sprechen == 0:
+        EmoFaniString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=False")
+        sock.sendto(EmoFaniString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+        sock.sendto("#HBRAIN#0#", (MasterBrainAD.UDP_IN_IP, MasterBrainAD.UDP_IN_PORT))
+
+
+#Thread zum staendige nachstellen der Augen
+def kopfUndAugen():
+    global HBrainAD
+    global EmoFaniAD
+    global MIRAAD
+    
+    
+    global position
+    global personX
+    global personY
+    global now
+    
+    if position == "Person":
+        print "Position :", position," (", personX, ";", personY, ")"
+        personFlag = True
+        x = personX
+        y = personY
+    else:
+        print "Position :", position
+        personFlag = False
+        b = position.find(';')
+        x=position[:b]
+        y=position[b+1:]
+
+    sendeString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazex=" + str(x))
+    sock.sendto(sendeString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+    sendeString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazey=" + str(y))
+    sock.sendto(sendeString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+
+
+#Funktion zur Emotionsausgabe
+def emotionenKlasifizierung():
+    global emotion
+    global now
+    global HBrainAD
+    global EmoFaniAD
+    global MIRAAD
+
+    print "Emotion: ", emotion
+    if emotion == 'neutral' or emotion == ':-|':
+        emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=neutral%100")
+
+    elif emotion == 'happy' or emotion == ':-)':
+        emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=happy%100")
+
+    elif emotion == 'sad' or emotion == ':-(':
+        emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=sad%100")
+
+    elif emotion == 'attentive':
+        emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=attentive%100")
+
+    elif emotion == 'excited' or emotion == ':-O':
+        emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=excited%100")
+
+    elif emotion == 'relaxed':
+        emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=relaxed%100")
+
+    elif emotion == 'sleepy':
+        emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=sleepy%100")
+
+    elif emotion == 'frustrated' or emotion == '-.-':
+        emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=frustrated%100")
+
+    elif emotion == 'idle:true':
+        emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=true")
+
+    elif emotion == 'idle:false':
+        emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=false")
+
+    sock.sendto(emotion, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+
+
+#Funktion zum berechnen der Deltatime
+STime=0
+def deltaTime(dTime):
+    global STime
+    if not STime:
+        STime=time.time()
+        return False
+    if STime+dTime<= time.time():
+        STime=0
+        return True
+    else:
+        return False
+
+
+
+#Hauptprogramm mit Hoheit ueber Multithreading
+KOPFUNDAUGEN = multiprocessing.Process(target=kopfUndAugen)
+KOPFUNDAUGEN.start()
+EMPFANGEN = multiprocessing.Process(target=empfangen)
+EMPFANGEN.start()
+while True:
+    time.sleep(1)
+    now = (int(time.time() * 1000))
+    print messageReceived
+ 
+    if EMPFANGEN.is_alive():
+        if messageReceived == 0:# and deltaTime(0.5):
+            print "erneueter Versuch TTS zu erreichen!"
+            sock.sendto(TTS, (TTSAD.UDP_IN_IP, TTSAD.UDP_IN_PORT))
+
+    else:
+        
+        EMPFANGEN.join()
+
+                
+
