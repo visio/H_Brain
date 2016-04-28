@@ -154,7 +154,7 @@ def kopfDrehung():
             y=position[b+1:]
         
         
-        sendeString = str("#NAV##ROTBODY#" + str(x) + "#")
+        sendeString = str("#NAV##ROTHEAD#" + str(x) + "#")
         sock.sendto(sendeString, (MIRAAD.UDP_IN_IP, MIRAAD.UDP_IN_PORT))
         sendeString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazey=" + str(y))
         sock.sendto(sendeString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
