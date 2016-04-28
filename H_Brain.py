@@ -30,7 +30,7 @@
         ""t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=True"" / (Lippenbewegung)
         ""t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=neutral%100"" (Emotionen)
     
-    Mira: (noch nicht fertig)
+    Mira:
     Rotate Body:	 #NAV##ROTBODY#[angle:int]#	//#NAV##ROTBODY#80# clockwise
     Rotate Head:	 #NAV##ROTHEAD#[angle:int]#	//#NAV##ROTHEAD#90#
 
@@ -51,7 +51,7 @@ adress = namedtuple("adress", "UDP_IN_IP UDP_IN_PORT")
 
 ############################## UDP IP/Port Einstellungen ##############################
 #Nur ein Block der folgenden UDP Einstellungen sollte aktiv sein. Rest mit Fueschen von drei Gaensen auskomentieren!
-
+"""
 ####################### Mac an der Hochschule ####################################
 HBrainAD      = adress(UDP_IN_IP = "134.103.204.164", UDP_IN_PORT = 11005)
 #  =>Alle Module senden bitte an die HBrain IN Adresse
@@ -64,14 +64,13 @@ MIRAAD        = adress(UDP_IN_IP = "134.103.204.164", UDP_IN_PORT = 11002)
 """
 #######################  Mac bei mir zuhause ###################################
 HBrainAD      = adress(UDP_IN_IP = "10.0.1.4", UDP_IN_PORT = 11005)
->>>>>>> origin/master
 #  =>Alle Module senden bitte an die HBrain IN Adresse
 MasterBrainAD = adress(UDP_IN_IP = "192.168.188.22", UDP_IN_PORT = 8888)
-EmoFaniAD     = adress(UDP_IN_IP = "192.168.188.22", UDP_IN_PORT = 11000)
+EmoFaniAD     = adress(UDP_IN_IP = "10.0.1.4", UDP_IN_PORT = 11000)
 TTSAD         = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 5555)
 MIRAAD        = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 8888)
 #################################################################################
-"""
+
 """
 #######################  NUC an FritzBox ########################################
 HBrainAD      = adress(UDP_IN_IP = "192.168.188.11", UDP_IN_PORT = 11005)
@@ -96,7 +95,7 @@ print "MIRA         ", MIRAAD
 
 sprechen = 0
 textString = ""
-personFlag = True
+
 personX ="0"
 personY ="0"
 messageReceived = 1
@@ -120,8 +119,76 @@ def empfangen():
         print "fehler beim empfangen!"
 
 
-while True:
+def kopfDrehung():
+    personX = 0
+    personY = 0
+    global HBrainAD
+    global EmoFaniAD
+    global MIRAAD
+    Xaktuell = 0
+    personFlag = True
     
+    while True:
+        position = kopfUbergabe.get()
+        person = False
+        now = (int(time.time() * 1000))
+        
+        print "position: ", position
+        
+        if position == "Person":
+            personFlag = True
+            x = personX
+            y = personY
+        elif position[0]=='#' and personFlag:
+            b = position.find(';')
+            x=position[1:b]
+            y=position[b+1:]
+        elif position[0]=='#' and not personFlag:
+            b = position.find(';')
+            personX=position[1:b]
+            personY=position[b+1:]
+        else:
+            personFlag = False
+            b = position.find(';')
+            x=position[:b]
+            y=position[b+1:]
+        
+        
+        sendeString = str("#NAV##ROTBODY#" + str(x) + "#")
+        sock.sendto(sendeString, (MIRAAD.UDP_IN_IP, MIRAAD.UDP_IN_PORT))
+        sendeString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazey=" + str(y))
+        sock.sendto(sendeString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+        a=int(x)-Xaktuell
+        sendeString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazex=" + str(a))
+        sock.sendto(sendeString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+        
+        x=int(x)
+        time.sleep(0.3)
+        while Xaktuell != x:
+            time.sleep(0.1)
+            if (x+2) < Xaktuell:
+                Xaktuell -= 3
+            elif (x-2) > Xaktuell:
+                Xaktuell += 3
+            else:
+                break
+            a=int(x)-Xaktuell
+            sendeString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazex=" + str(a))
+            sock.sendto(sendeString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+
+
+
+        Xaktuell = x
+        print "Augen Nachfuehren beedet"
+
+
+kopfUbergabe = multiprocessing.Queue()
+o = multiprocessing.Process(target=kopfDrehung)
+o.start()
+
+
+
+while True:    
     if __name__ == '__main__':
         # Start bar as a process
         now = (int(time.time() * 1000))
@@ -135,7 +202,7 @@ while True:
             # If thread is still active
             if messageReceived == 0:
                 print "erneueter Versuch TTS zu erreichen!"
-                sock.sendto(TTS, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+                sock.sendto(TTS, (TTSAD.UDP_IN_IP, TTSAD.UDP_IN_PORT))
                 
                 
     data = uerbergabe.get()
@@ -150,15 +217,8 @@ while True:
         data = data [15:]
         b = data.find('}')
         Augenposition = data[1:b]
-        print "Position: ", Augenposition
-        b = Augenposition.find(';')
-        personX=Augenposition[:b]
-        personY=Augenposition[b+1:]
-        if personFlag == True:
-            Augenposition = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazex=" + str(personX))
-            sock.sendto(Augenposition, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
-            Augenposition = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazey=" + str(personY))
-            sock.sendto(Augenposition, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+        kopfUbergabe.put("#" + Augenposition)
+
 
 
     elif data[:13] == "#BRAIN##TEXT#":
@@ -169,6 +229,7 @@ while True:
     if data[:13] == "#TTS#finished" or sprechen == 0: #Rueckgabe wann TTS fertig ist
 	#print "Ausgesprochen"
         sprechen = 0
+        messageReceived = 1
         
         
         while sprechen == 0 and textString != "":
@@ -268,25 +329,9 @@ while True:
                 #Augenposition UDP (FaceAni)
                 b = textString.find('}')
                 position = textString[1:b]
+                kopfUbergabe.put(position)
                 textString = textString[b+1:]
-                print "Position: ", position
-                if position == "Person":
-                    personFlag = True
-                    x = personX
-                    y = personY
-                else:
-                    personFlag = False
-                    b = position.find(';')
-                    x=position[:b]
-                    y=position[b+1:]
-
-
-                position = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazex=" + str(x))
-                sock.sendto(position, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
-                position = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazey=" + str(y))
-                sock.sendto(position, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
-
-            
+    
         if textString == "" and sprechen == 0:
             EmoFaniString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=False")
             sock.sendto(EmoFaniString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
