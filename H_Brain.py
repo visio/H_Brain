@@ -96,7 +96,7 @@ print "MIRA         ", MIRAAD
 
 sprechen = 0
 textString = ""
-
+idleFlag=0
 personX ="0"
 personY ="0"
 messageReceived = 1
@@ -155,8 +155,9 @@ def kopfDrehung():
             y=position[b+1:]
         
         x=int(x)
-        sendeString = str("#NAV##ROTHEAD#" + str(-180 + x) + "#")
+        sendeString = str("#NAV##ROTHEAD#" + str(-180 - x) + "#")
         sock.sendto(sendeString, (MIRAAD.UDP_IN_IP, MIRAAD.UDP_IN_PORT))
+        x=int(x*2)
         sendeString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazey=" + str(y))
         sock.sendto(sendeString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
         a=int(x)-Xaktuell
@@ -167,10 +168,10 @@ def kopfDrehung():
         time.sleep(0.3)
         while Xaktuell != x:
             time.sleep(0.1)
-            if (x+2) < Xaktuell:
-                Xaktuell -= 3
-            elif (x-2) > Xaktuell:
-                Xaktuell += 3
+            if (x+10) < Xaktuell:
+                Xaktuell -= 15
+            elif (x-10) > Xaktuell:
+                Xaktuell += 15
             else:
                 break
             a=int(x)-Xaktuell
@@ -291,21 +292,27 @@ while True:
                 emotion = textString[1:a]
                 textString = textString[(a+1):]
                 print "Emotion: ", emotion
-                if emotion == 'neutral' or emotion == ':-|':
+                if emotion == 'neutral' or emotion == ':-|' or emotion == '0':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=neutral%100")
                 
-                elif emotion == 'happy' or emotion == ':-)':
+                elif emotion == 'happy' or emotion == ':-)' or emotion == '1':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=happy%100")
 
-                elif emotion == 'sad' or emotion == ':-(':
+                elif emotion == 'sad' or emotion == ':-(' emotion == '5':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=sad%100")
                 
                 elif emotion == 'attentive':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=attentive%100")
                 
-                elif emotion == 'excited' or emotion == ':-O':
+                elif emotion == 'excited' or emotion == ':-O' or emotion == '2':
+                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=excited%60")
+
+                elif emotion == 'laughing' or emotion == '3':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=excited%100")
-                
+
+                elif emotion == 'angry' or emotion == '4':
+                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=excited%100")
+        
                 elif emotion == 'relaxed':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=relaxed%100")
                 
@@ -316,11 +323,19 @@ while True:
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=frustrated%100")
                 
                 elif emotion == 'idle:true':
+                    idleFlag=1
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=true")
-                
                 elif emotion == 'idle:false':
+                    idleFlag=0
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=false")
+                    
 
+                elif emotion == 'blush:true':
+                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:blush=100")
+                elif emotion == 'blush:false':
+                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:blush=0")
+
+		print emotion
                 sock.sendto(emotion, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
 
 
@@ -337,4 +352,11 @@ while True:
             EmoFaniString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=False")
             sock.sendto(EmoFaniString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
             sock.sendto("#HBRAIN#0#", (MasterBrainAD.UDP_IN_IP, MasterBrainAD.UDP_IN_PORT))
-            continue
+	    if idleFlag:
+	        emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=true")
+	    else:
+            emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=false")
+            sock.sendto(emotion, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+        continue
+	    
+	    
