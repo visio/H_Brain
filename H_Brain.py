@@ -62,6 +62,7 @@ MIRAAD        = adress(UDP_IN_IP = "134.103.204.164", UDP_IN_PORT = 11002)
 ##################################################################################
 
 """
+"""
 #######################  Mac bei mir zuhause ###################################
 HBrainAD      = adress(UDP_IN_IP = "10.0.1.4", UDP_IN_PORT = 11005)
 #  =>Alle Module senden bitte an die HBrain IN Adresse
@@ -78,9 +79,9 @@ HBrainAD      = adress(UDP_IN_IP = "192.168.188.11", UDP_IN_PORT = 11005)
 MasterBrainAD = adress(UDP_IN_IP = "192.168.188.23", UDP_IN_PORT = 8888)
 EmoFaniAD     = adress(UDP_IN_IP = "192.168.188.11", UDP_IN_PORT = 11000)
 TTSAD         = adress(UDP_IN_IP = "192.168.188.10", UDP_IN_PORT = 5555)
-MIRAAD        = adress(UDP_IN_IP = "192.168.188.10", UDP_IN_PORT = 8888)
+MIRAAD        = adress(UDP_IN_IP = "192.168.188.10", UDP_IN_PORT = 5000)
 #################################################################################
-"""
+
 
 
 print "HBrainAD     ", HBrainAD
@@ -153,8 +154,8 @@ def kopfDrehung():
             x=position[:b]
             y=position[b+1:]
         
-        
-        sendeString = str("#NAV##ROTHEAD#" + str(x) + "#")
+        x=int(x)
+        sendeString = str("#NAV##ROTHEAD#" + str(-180 + x) + "#")
         sock.sendto(sendeString, (MIRAAD.UDP_IN_IP, MIRAAD.UDP_IN_PORT))
         sendeString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazey=" + str(y))
         sock.sendto(sendeString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
@@ -162,7 +163,7 @@ def kopfDrehung():
         sendeString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazex=" + str(a))
         sock.sendto(sendeString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
         
-        x=int(x)
+        
         time.sleep(0.3)
         while Xaktuell != x:
             time.sleep(0.1)
