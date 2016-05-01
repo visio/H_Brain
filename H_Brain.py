@@ -124,9 +124,9 @@ def empfangen():
 
 
 def idle():
-    while
+    while True:
         a = random.randint(-60,60)
-        a = random.randint(-60,0)
+        b = random.randint(-60,0)
         time.sleep(random.randint(3,9))
         sendeString = str("#HBRAIN##RANDOM#{" + str(a) + ";" + str(b) + "}")
         sock.sendto(sendeString, (HBrainAD.UDP_IN_IP, HBrainAD.UDP_IN_PORT))
@@ -229,7 +229,7 @@ while True:
     print "received message:", data
     
     
-if data[:16] == "#HBRAIN##PERSON#" or data[:16] == "#HBRAIN##RANDOM#":
+    if data[:16] == "#HBRAIN##PERSON#" or data[:16] == "#HBRAIN##RANDOM#":
         print "Augenposition wird veraendert"
         #Augenposition UDP (FaceAni)
         data = data [16:]
