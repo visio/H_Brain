@@ -123,11 +123,23 @@ def empfangen():
 
 
 
-def idle():
+def idle2():
+    while True:
+        a = random.randint(-80,80)
+        b = random.randint(-60,60)
+        time.sleep(random.randint(3,9))
+        sendeString = str("#HBRAIN##RANDOM#{" + str(a) + ";" + str(b) + "}")
+        sock.sendto(sendeString, (HBrainAD.UDP_IN_IP, HBrainAD.UDP_IN_PORT))
+        time.sleep(random.randint(5,20)/10)
+        sendeString = str("#HBRAIN##RANDOM#{0;0}")
+        sock.sendto(sendeString, (HBrainAD.UDP_IN_IP, HBrainAD.UDP_IN_PORT))
+
+
+def idle3():
     while True:
         a = random.randint(-60,60)
         b = random.randint(-60,0)
-        time.sleep(random.randint(3,9))
+        time.sleep(random.randint(7,15))
         sendeString = str("#HBRAIN##RANDOM#{" + str(a) + ";" + str(b) + "}")
         sock.sendto(sendeString, (HBrainAD.UDP_IN_IP, HBrainAD.UDP_IN_PORT))
         time.sleep(random.randint(5,20)/10)
@@ -346,7 +358,7 @@ while True:
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=false")
                     
                 elif emotion == 'idle2:true':
-                    y = multiprocessing.Process(target=idle)
+                    y = multiprocessing.Process(target=idle2)
                     try:
                         y.start()
                     except:
@@ -354,6 +366,14 @@ while True:
                 elif emotion == 'idle2:false':
                     y.terminate()
 
+                elif emotion == 'idle3:true':
+                    z = multiprocessing.Process(target=idle3)
+                    try:
+                        z.start()
+                    except:
+                        print "idle laeuft schon"
+                elif emotion == 'idle3:false':
+                    z.terminate()
 
                 elif emotion == 'blush:true':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:blush=100")
