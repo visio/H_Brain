@@ -315,6 +315,8 @@ while True:
 
 #Emotion Weiterleitung
             if emotion:
+                
+                
                 #Emotions UDP (FaceAni)
                 a = textString.find(']')
                 emotion = textString[1:a]
@@ -364,7 +366,11 @@ while True:
                     except:
                         print "idle laeuft schon"
                 elif emotion == 'idle2:false':
-                    y.terminate()
+                    try:
+                        y.terminate()
+                    except:
+                        print "laeuft noch garnicht"
+
 
                 elif emotion == 'idle3:true':
                     z = multiprocessing.Process(target=idle3)
@@ -373,7 +379,11 @@ while True:
                     except:
                         print "idle laeuft schon"
                 elif emotion == 'idle3:false':
-                    z.terminate()
+                    try:
+                        z.terminate()
+                    except:
+                        print "laeuft noch garnicht"
+
 
                 elif emotion == 'blush:true':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:blush=100")
