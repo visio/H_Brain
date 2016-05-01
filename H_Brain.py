@@ -10,7 +10,7 @@
     MasterBrain:
         "#BRAIN##TEXT#ich bin ein Test{35,27}[:-)]schaue hier{Person}[:-|]" (Im Gespraechstring darf Text vorkommen, der an TTS weitergeleitet wird {} sind Positoen die angeschaut werden sollen und [] sind Emotionen. Nichts wird automatisch rueckgestellt! Gespraechstrings werden der Reihe nach bearbeitet (kein Abbruch, bei neuem Gespraechstring)
     
-        "#BRAIN##PERSON#{67;36}" (Einen Punkt an dem sich die der Aktuelle Gespraechspartner befindet. Kann staendig zwischdrin gesedet werden. Durch {Person} im Gespraechstring schaut Leonie immer den Gespraechspartner an. nach dem ein seperater Punkt angeschaut wurde, muss erst wieder {Person} gesendet werden, damit Leonie wieder den Gespraechspartner anschaut.
+        "#HBRAIN##PERSON#{67;36}" (Einen Punkt an dem sich die der Aktuelle Gespraechspartner befindet. Kann staendig zwischdrin gesedet werden. Durch {Person} im Gespraechstring schaut Leonie immer den Gespraechspartner an. nach dem ein seperater Punkt angeschaut wurde, muss erst wieder {Person} gesendet werden, damit Leonie wieder den Gespraechspartner anschaut.
     
     TTS:
         "#TTS#finished" muss gesendet werden, wenn TTS fertig mit dem sprechen ist!
@@ -101,6 +101,7 @@ personX ="0"
 personY ="0"
 messageReceived = 1
 data = ""
+personFlag = True
 try:
     sock = socket.socket(socket.AF_INET, # Internet
                          socket.SOCK_DGRAM) # UDP
@@ -127,7 +128,7 @@ def kopfDrehung():
     global EmoFaniAD
     global MIRAAD
     Xaktuell = 0
-    personFlag = True
+    global personFlag
     
     while True:
         position = kopfUbergabe.get()
@@ -148,6 +149,7 @@ def kopfDrehung():
             b = position.find(';')
             personX=position[1:b]
             personY=position[b+1:]
+            continue
         else:
             personFlag = False
             b = position.find(';')
@@ -213,10 +215,10 @@ while True:
     print "received message:", data
     
     
-    if data[:15] == "#BRAIN##PERSON#":
+    if data[:16] == "#HBRAIN##PERSON#":
         print "Augenposition wird veraendert"
         #Augenposition UDP (FaceAni)
-        data = data [15:]
+        data = data [16:]
         b = data.find('}')
         Augenposition = data[1:b]
         kopfUbergabe.put("#" + Augenposition)
@@ -298,7 +300,7 @@ while True:
                 elif emotion == 'happy' or emotion == ':-)' or emotion == '1':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=happy%100")
 
-                elif emotion == 'sad' or emotion == ':-(' emotion == '5':
+                elif emotion == 'sad' or emotion == ':-(' or emotion == '5':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=sad%100")
                 
                 elif emotion == 'attentive':
@@ -335,7 +337,7 @@ while True:
                 elif emotion == 'blush:false':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:blush=0")
 
-		print emotion
+
                 sock.sendto(emotion, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
 
 
@@ -352,11 +354,13 @@ while True:
             EmoFaniString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=False")
             sock.sendto(EmoFaniString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
             sock.sendto("#HBRAIN#0#", (MasterBrainAD.UDP_IN_IP, MasterBrainAD.UDP_IN_PORT))
-	    if idleFlag:
-	        emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=true")
-	    else:
-            emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=false")
+            
+            if idleFlag:
+                emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=true")
+            else:
+                emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=false")
+
             sock.sendto(emotion, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
-        continue
+            continue
 	    
 	    
