@@ -41,6 +41,7 @@
 import socket
 import sys
 import time
+import random
 from collections import namedtuple
 import multiprocessing
 
@@ -119,6 +120,19 @@ def empfangen():
     
     except:
         print "fehler beim empfangen!"
+
+
+
+def idle():
+    while
+        a = random.randint(-60,60)
+        a = random.randint(-60,0)
+        time.sleep(random.randint(3,9))
+        sendeString = str("#HBRAIN##RANDOM#{" + str(a) + ";" + str(b) + "}")
+        sock.sendto(sendeString, (HBrainAD.UDP_IN_IP, HBrainAD.UDP_IN_PORT))
+        time.sleep(random.randint(5,20)/10)
+        sendeString = str("#HBRAIN##RANDOM#{0;0}")
+        sock.sendto(sendeString, (HBrainAD.UDP_IN_IP, HBrainAD.UDP_IN_PORT))
 
 
 def kopfDrehung():
@@ -215,7 +229,7 @@ while True:
     print "received message:", data
     
     
-    if data[:16] == "#HBRAIN##PERSON#":
+if data[:16] == "#HBRAIN##PERSON#" or data[:16] == "#HBRAIN##RANDOM#":
         print "Augenposition wird veraendert"
         #Augenposition UDP (FaceAni)
         data = data [16:]
@@ -309,7 +323,7 @@ while True:
                 elif emotion == 'excited' or emotion == ':-O' or emotion == '2':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=excited%60")
 
-                elif emotion == 'laughing' or emotion == '3':
+                elif emotion == 'laughing' or emotion == ':-D' or emotion == '3':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=excited%100")
 
                 elif emotion == 'angry' or emotion == '4':
@@ -331,6 +345,15 @@ while True:
                     idleFlag=0
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=false")
                     
+                elif emotion == 'idle2:true':
+                    y = multiprocessing.Process(target=idle)
+                    try:
+                        y.start()
+                    except:
+                        print "idle laeuft schon"
+                elif emotion == 'idle2:false':
+                    y.terminate()
+
 
                 elif emotion == 'blush:true':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:blush=100")
