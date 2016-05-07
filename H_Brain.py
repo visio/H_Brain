@@ -78,8 +78,9 @@ MIRAAD        = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 8888)
 HBrainAD      = adress(UDP_IN_IP = "192.168.188.11", UDP_IN_PORT = 11005)
 #  =>Alle Module senden bitte an die HBrain IN Adresse
 MasterBrainAD = adress(UDP_IN_IP = "192.168.188.23", UDP_IN_PORT = 8888)
-EmoFaniAD     = adress(UDP_IN_IP = "192.168.188.11", UDP_IN_PORT = 11000)
-TTSAD         = adress(UDP_IN_IP = "192.168.188.10", UDP_IN_PORT = 5555)
+EmoFaniAD     = adress(UDP_IN_IP = "192.168.188.12", UDP_IN_PORT = 11000)
+TTSAD         = adress(UDP_IN_IP = "192.168.188.23", UDP_IN_PORT = 5555)
+#TTSAD2        = adress(UDP_IN_IP = "192.168.188.10", UDP_IN_PORT = 5555)
 MIRAAD        = adress(UDP_IN_IP = "192.168.188.10", UDP_IN_PORT = 5000)
 #################################################################################
 
@@ -92,12 +93,23 @@ print "TTS          ", TTSAD
 print "MIRA         ", MIRAAD
 
 
+mirrorFlag=0
 
+try:
+    mirrorFlag=int(sys.argv[1])
+    if mirrorFlag==1:
+        print "H_Bran: Mirrorflag"
+    else:
+        print "H_Bran: kein Mirrorflag"
+except:
+    print "H_Bran: kein Argument -> kein Mirrorflag"
 
 
 sprechen = 0
 textString = ""
 idleFlag=0
+idleFlag2=0
+idleFlag3=0
 personX ="0"
 personY ="0"
 messageReceived = 1
@@ -137,12 +149,12 @@ def idle2():
 
 def idle3():
     while True:
-        a = random.randint(-60,60)
-        b = random.randint(-60,0)
+        a = random.randint(-50,50)
+        b = random.randint(-50,10)
         time.sleep(random.randint(7,15))
         sendeString = str("#HBRAIN##RANDOM#{" + str(a) + ";" + str(b) + "}")
         sock.sendto(sendeString, (HBrainAD.UDP_IN_IP, HBrainAD.UDP_IN_PORT))
-        time.sleep(random.randint(5,20)/10)
+        time.sleep(random.randint(8,20)/10)
         sendeString = str("#HBRAIN##RANDOM#{0;0}")
         sock.sendto(sendeString, (HBrainAD.UDP_IN_IP, HBrainAD.UDP_IN_PORT))
 
@@ -181,8 +193,11 @@ def kopfDrehung():
             b = position.find(';')
             x=position[:b]
             y=position[b+1:]
-        
-        x=int(x)
+        try:
+            x=int(x)
+        except:
+            continue
+
         sendeString = str("#NAV##ROTHEAD#" + str(-180 - x) + "#")
         sock.sendto(sendeString, (MIRAAD.UDP_IN_IP, MIRAAD.UDP_IN_PORT))
         x=int(x*2)
@@ -233,7 +248,7 @@ while True:
             if messageReceived == 0:
                 print "erneueter Versuch TTS zu erreichen!"
                 sock.sendto(TTS, (TTSAD.UDP_IN_IP, TTSAD.UDP_IN_PORT))
-                
+                #sock.sendto(TTS, (TTSAD2.UDP_IN_IP, TTSAD2.UDP_IN_PORT))
                 
     data = uerbergabe.get()
     if data[:13] == "#TTS#received": #Rueckgabe wann TTS Nachricht empfangen hat
@@ -253,6 +268,11 @@ while True:
 
     elif data[:13] == "#BRAIN##TEXT#":
         textString += (" " + data[13:])
+
+    elif data[:17] == "#VBRAIN##EMOTION#" and mirrorFlag:
+        textString += (" [" + data[17:-1] + "]")
+        print "Mirror: ", data[17:-1]
+
 
 
 
@@ -304,6 +324,7 @@ while True:
                 time.sleep(0.05)
                 print TTS
                 sock.sendto(TTS, (TTSAD.UDP_IN_IP, TTSAD.UDP_IN_PORT))
+                #sock.sendto(TTS, (TTSAD2.UDP_IN_IP, TTSAD2.UDP_IN_PORT))
                 messageReceived = 0
                 
                 #Mundbewegug
@@ -340,7 +361,7 @@ while True:
                 elif emotion == 'laughing' or emotion == ':-D' or emotion == '3':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=excited%100")
 
-                elif emotion == 'angry' or emotion == '4':
+                elif emotion == 'angry':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=excited%100")
         
                 elif emotion == 'relaxed':
@@ -349,41 +370,70 @@ while True:
                 elif emotion == 'sleepy':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=sleepy%100")
                 
-                elif emotion == 'frustrated' or emotion == '-.-':
+                elif emotion == 'frustrated' or emotion == '-.-' or emotion == '4':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=frustrated%100")
                 
                 elif emotion == 'idle:true':
-                    idleFlag=1
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=true")
+                    idleFlag=1
+                    try:
+                        y.terminate()
+                    except:
+                        print "laeuft noch garnicht"
+                    try:
+                        z.terminate()
+                    except:
+                        print "laeuft noch garnicht"
+    
+                        
                 elif emotion == 'idle:false':
                     idleFlag=0
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=false")
                     
                 elif emotion == 'idle2:true':
-                    y = multiprocessing.Process(target=idle2)
+                    if idleFlag2==0:
+                        y = multiprocessing.Process(target=idle2)
+                        try:
+                            y.start()
+                        except:
+                            print "idle laeuft schon"
+                    idleFlag2=1
                     try:
-                        y.start()
+                        z.terminate()
                     except:
-                        print "idle laeuft schon"
+                        print "laeuft noch garnicht"
+
+                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=false")
+
                 elif emotion == 'idle2:false':
                     try:
                         y.terminate()
                     except:
                         print "laeuft noch garnicht"
 
+                    idleFlag2=0
 
                 elif emotion == 'idle3:true':
-                    z = multiprocessing.Process(target=idle3)
+                    if idleFlag3==0:
+                        z = multiprocessing.Process(target=idle3)
+                        try:
+                            z.start()
+                        except:
+                            print "idle laeuft schon"
+                    idleFlag3=1
                     try:
-                        z.start()
+                        y.terminate()
                     except:
-                        print "idle laeuft schon"
+                        print "laeuft noch garnicht"
+                
+                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=false")
+
                 elif emotion == 'idle3:false':
                     try:
                         z.terminate()
                     except:
                         print "laeuft noch garnicht"
-
+                    idleFlag3=0
 
                 elif emotion == 'blush:true':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:blush=100")
