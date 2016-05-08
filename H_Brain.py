@@ -115,6 +115,7 @@ personY ="0"
 messageReceived = 1
 data = ""
 personFlag = True
+satzzeichenFlag=0
 try:
     sock = socket.socket(socket.AF_INET, # Internet
                          socket.SOCK_DGRAM) # UDP
@@ -285,6 +286,12 @@ while True:
         while sprechen == 0 and textString != "":
             emotion = 0
             position = 0
+            
+            
+            if satzzeichenFlag:
+                EmoFaniString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=False")
+                sock.sendto(EmoFaniString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+            
 
             try:
                 if textString[0] == ' ':
@@ -301,6 +308,39 @@ while True:
         
             else:
                 a = textString.find('[')
+                satzzeichenFlag=0
+                if a == -1:
+                    a = 100000
+                b = textString.find('{')
+                if (a > b and b != -1):
+                    a = b
+
+                b = textString.find('.')
+                if (a > b and b != -1):
+                    satzzeichenFlag = 1
+                    a = b
+
+                b = textString.find('?')
+                if (a > b and b != -1):
+                    satzzeichenFlag = 1
+                    a = b
+
+                b = textString.find('!')
+                if (a > b and b != -1):
+                    satzzeichenFlag = 1
+                    a = b
+
+                if a == 100000:
+                    TTS = textString
+                    textString = ""
+                else:
+                    if satzzeichenFlag:
+                        a+=1
+                    TTS = textString[0:a]
+                    textString = textString[(a):]
+
+
+                """
                 b = textString.find('{')
                 if a == -1:
                     a = 100000
@@ -315,19 +355,21 @@ while True:
                 else:
                     TTS = textString
                     textString = ""
+                """
 
 
 #Sprach Weiterleitung
-            if not position and not emotion and TTS != " ":
+            if not position and not emotion and TTS != "" and TTS != " " and TTS != "  " and TTS != "   " and TTS != "    ":
                 
                 #Sprache UDP (TTS)
-                time.sleep(0.05)
+                time.sleep(0.1)
                 print TTS
                 sock.sendto(TTS, (TTSAD.UDP_IN_IP, TTSAD.UDP_IN_PORT))
                 #sock.sendto(TTS, (TTSAD2.UDP_IN_IP, TTSAD2.UDP_IN_PORT))
                 messageReceived = 0
                 
                 #Mundbewegug
+                time.sleep(0.5)
                 EmoFaniString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=True")
                 sock.sendto(EmoFaniString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
                 sprechen = 1
@@ -361,8 +403,10 @@ while True:
                 elif emotion == 'laughing' or emotion == ':-D' or emotion == '3':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=excited%100")
 
-                elif emotion == 'angry':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=excited%100")
+                elif emotion == ':-/':
+                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:pleasure=-37")
+                    sock.sendto(emotion, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:arousal=-36")
         
                 elif emotion == 'relaxed':
                     emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=relaxed%100")
