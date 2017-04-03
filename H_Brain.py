@@ -48,7 +48,7 @@ import multiprocessing
 
 ############################## UDP IP/Port Einstellungen ##############################
 #IP Adressen und Ports:                 IP-Adresse    UDP   TCP  both/UDP/TCP
-"""
+
 adressen = {"MasterBrainAD->HBrain" : ("192.168.188.11", 11005),
             "HBrain->MasterBrainAD" : ("192.168.188.23",  8888),
             
@@ -61,7 +61,9 @@ adressen = {"MasterBrainAD->HBrain" : ("192.168.188.11", 11005),
             "EmoFani->HBrain"       : ("192.168.188.11", 11005),
             "HBrain->EmoFani"       : ("192.168.188.12", 11000)            
             }
+
 """
+
 adressen = {"MasterBrainAD->HBrain" : ("134.103.204.95", 11005),
             "HBrain->MasterBrainAD" : ("192.168.188.23",  8888),
             
@@ -74,6 +76,7 @@ adressen = {"MasterBrainAD->HBrain" : ("134.103.204.95", 11005),
             "EmoFani->HBrain"       : ("192.168.188.11", 11005),
             "HBrain->EmoFani"       : ("192.168.188.12", 11000)            
             }
+"""
 
 print "HBrainAD     ", adressen["MasterBrainAD->HBrain"]
 print "MasterBrain  ", adressen["HBrain->MasterBrainAD"]
@@ -82,12 +85,27 @@ print "TTS          ", adressen["HBrain->TTSAD"]
 print "MIRA         ", adressen["HBrain->MIRAAD"]
 
 
-a=0
-for i, item in enumerate(sys.argv, 2):   
-    if item in adressen:
-        del adressen[item]
-        adressen.update({item : (sys.argv[a+1], sys.argv[a+2])})
-    a+=1
+    
+try:
+    a=0
+    for i, item in enumerate(sys.argv, 2):   
+        if item in adressen:
+            del adressen[item]
+            adressen.update({item : (sys.argv[a+1], sys.argv[a+2])})
+        a+=1
+except:
+    print '''fehler bei der Argumentuebergabe. Richtig: 
+            '0' 
+            'MasterBrainAD->HBrain' '134.103.204.95' '11005' 
+            'HBrain->MasterBrainAD' '134.103.204.95' '11005' 
+            'TTSAD->HBrain' '134.103.204.95' '11005'
+            'HBrain->TTSAD' '134.103.204.95' '11005'
+            'MIRAAD->HBrain' '134.103.204.95' '11005'
+            'HBrain->MIRAAD' '134.103.204.95' '11005'
+            'EmoFani->HBrain' '134.103.204.95' '11005'
+            'HBrain->EmoFani' '134.103.204.95' '11005'    
+          '''
+
   
 
 
