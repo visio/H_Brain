@@ -42,55 +42,53 @@ import socket
 import sys
 import time
 import random
-from collections import namedtuple
 import multiprocessing
-
-adress = namedtuple("adress", "UDP_IN_IP UDP_IN_PORT")
-
 
 
 
 ############################## UDP IP/Port Einstellungen ##############################
-#Nur ein Block der folgenden UDP Einstellungen sollte aktiv sein. Rest mit Fueschen von drei Gaensen auskomentieren!
+#IP Adressen und Ports:                 IP-Adresse    UDP   TCP  both/UDP/TCP
 """
-####################### Mac an der Hochschule ####################################
-HBrainAD      = adress(UDP_IN_IP = "134.103.204.164", UDP_IN_PORT = 11005)
-#  =>Alle Module senden bitte an die HBrain IN Adresse
-MasterBrainAD = adress(UDP_IN_IP = "134.103.204.164", UDP_IN_PORT = 11010)
-EmoFaniAD     = adress(UDP_IN_IP = "134.103.204.164", UDP_IN_PORT = 11000)
-TTSAD         = adress(UDP_IN_IP = "134.103.204.164", UDP_IN_PORT = 11001)
-MIRAAD        = adress(UDP_IN_IP = "134.103.204.164", UDP_IN_PORT = 11002)
-##################################################################################
-
+adressen = {"MasterBrainAD->HBrain" : ("192.168.188.11", 11005),
+            "HBrain->MasterBrainAD" : ("192.168.188.23",  8888),
+            
+            "TTSAD->HBrain"         : ("192.168.188.11", 11005),
+            "HBrain->TTSAD"         : ("192.168.188.23", 11003),
+            
+            "MIRAAD->HBrain"        : ("192.168.188.11", 11005),
+            "HBrain->MIRAAD"        : ("192.168.188.10",  5000),
+            
+            "EmoFani->HBrain"       : ("192.168.188.11", 11005),
+            "HBrain->EmoFani"       : ("192.168.188.12", 11000)            
+            }
 """
-"""
-#######################  Mac bei mir zuhause ###################################
-HBrainAD      = adress(UDP_IN_IP = "10.0.1.4", UDP_IN_PORT = 11005)
-#  =>Alle Module senden bitte an die HBrain IN Adresse
-MasterBrainAD = adress(UDP_IN_IP = "192.168.188.22", UDP_IN_PORT = 8888)
-EmoFaniAD     = adress(UDP_IN_IP = "10.0.1.4", UDP_IN_PORT = 11000)
-TTSAD         = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 5555)
-MIRAAD        = adress(UDP_IN_IP = "192.168.188.21", UDP_IN_PORT = 8888)
-#################################################################################
+adressen = {"MasterBrainAD->HBrain" : ("134.103.204.95", 11005),
+            "HBrain->MasterBrainAD" : ("192.168.188.23",  8888),
+            
+            "TTSAD->HBrain"         : ("192.168.188.11", 11005),
+            "HBrain->TTSAD"         : ("192.168.188.23", 11003),
+            
+            "MIRAAD->HBrain"        : ("192.168.188.11", 11005),
+            "HBrain->MIRAAD"        : ("192.168.188.10",  5000),
+            
+            "EmoFani->HBrain"       : ("192.168.188.11", 11005),
+            "HBrain->EmoFani"       : ("192.168.188.12", 11000)            
+            }
 
-"""
-#######################  NUC an FritzBox ########################################
-HBrainAD      = adress(UDP_IN_IP = "192.168.188.11", UDP_IN_PORT = 11005)
-#  =>Alle Module senden bitte an die HBrain IN Adresse
-MasterBrainAD = adress(UDP_IN_IP = "192.168.188.23", UDP_IN_PORT = 8888)
-EmoFaniAD     = adress(UDP_IN_IP = "192.168.188.12", UDP_IN_PORT = 11000)
-TTSAD         = adress(UDP_IN_IP = "192.168.188.23", UDP_IN_PORT = 5555)
-#TTSAD2        = adress(UDP_IN_IP = "192.168.188.10", UDP_IN_PORT = 5555)
-MIRAAD        = adress(UDP_IN_IP = "192.168.188.10", UDP_IN_PORT = 5000)
-#################################################################################
+print "HBrainAD     ", adressen["MasterBrainAD->HBrain"]
+print "MasterBrain  ", adressen["HBrain->MasterBrainAD"]
+print "EmoFani      ", adressen["HBrain->EmoFani"]
+print "TTS          ", adressen["HBrain->TTSAD"]
+print "MIRA         ", adressen["HBrain->MIRAAD"]
 
 
-
-print "HBrainAD     ", HBrainAD
-print "MasterBrain  ", MasterBrainAD
-print "EmoFani      ", EmoFaniAD
-print "TTS          ", TTSAD
-print "MIRA         ", MIRAAD
+a=0
+for i, item in enumerate(sys.argv, 2):   
+    if item in adressen:
+        del adressen[item]
+        adressen.update({item : (sys.argv[a+1], sys.argv[a+2])})
+    a+=1
+  
 
 
 mirrorFlag=0
@@ -119,7 +117,7 @@ satzzeichenFlag=0
 try:
     sock = socket.socket(socket.AF_INET, # Internet
                          socket.SOCK_DGRAM) # UDP
-    sock.bind((HBrainAD.UDP_IN_IP, HBrainAD.UDP_IN_PORT))
+    sock.bind(adressen["MasterBrainAD->HBrain"])
 except:
     print "Irgendeine IPadresse ist nicht ansprechbar / falsch"
     exit()
@@ -142,10 +140,10 @@ def idle2():
         b = random.randint(-60,60)
         time.sleep(random.randint(3,9))
         sendeString = str("#HBRAIN##RANDOM#{" + str(a) + ";" + str(b) + "}")
-        sock.sendto(sendeString, (HBrainAD.UDP_IN_IP, HBrainAD.UDP_IN_PORT))
+        sock.sendto(sendeString, adressen["MasterBrainAD->HBrain"])
         time.sleep(random.randint(5,20)/10)
         sendeString = str("#HBRAIN##RANDOM#{0;0}")
-        sock.sendto(sendeString, (HBrainAD.UDP_IN_IP, HBrainAD.UDP_IN_PORT))
+        sock.sendto(sendeString, adressen["MasterBrainAD->HBrain"])
 
 
 def idle3():
@@ -154,10 +152,10 @@ def idle3():
         b = random.randint(-50,10)
         time.sleep(random.randint(7,15))
         sendeString = str("#HBRAIN##RANDOM#{" + str(a) + ";" + str(b) + "}")
-        sock.sendto(sendeString, (HBrainAD.UDP_IN_IP, HBrainAD.UDP_IN_PORT))
+        sock.sendto(sendeString, adressen["MasterBrainAD->HBrain"])
         time.sleep(random.randint(8,20)/10)
         sendeString = str("#HBRAIN##RANDOM#{0;0}")
-        sock.sendto(sendeString, (HBrainAD.UDP_IN_IP, HBrainAD.UDP_IN_PORT))
+        sock.sendto(sendeString, adressen["MasterBrainAD->HBrain"])
 
 
 def kopfDrehung():
@@ -200,13 +198,13 @@ def kopfDrehung():
             continue
 
         sendeString = str("#NAV##ROTHEAD#" + str(-180 - x) + "#")
-        sock.sendto(sendeString, (MIRAAD.UDP_IN_IP, MIRAAD.UDP_IN_PORT))
+        sock.sendto(sendeString, adressen["HBrain->MIRAAD"])
         x=int(x*2)
-        sendeString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazey=" + str(y))
-        sock.sendto(sendeString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+        sendeString = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:gazey=" + str(y))
+        sock.sendto(sendeString, adressen["HBrain->EmoFani"])
         a=int(x)-Xaktuell
-        sendeString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazex=" + str(a))
-        sock.sendto(sendeString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+        sendeString = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:gazex=" + str(a))
+        sock.sendto(sendeString, adressen["HBrain->EmoFani"])
         
         
         time.sleep(0.3)
@@ -219,8 +217,8 @@ def kopfDrehung():
             else:
                 break
             a=int(x)-Xaktuell
-            sendeString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:gazex=" + str(a))
-            sock.sendto(sendeString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+            sendeString = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:gazex=" + str(a))
+            sock.sendto(sendeString, adressen["HBrain->EmoFani"])
 
 
 
@@ -248,8 +246,8 @@ while True:
             # If thread is still active
             if messageReceived == 0:
                 print "erneueter Versuch TTS zu erreichen!"
-                sock.sendto(TTS, (TTSAD.UDP_IN_IP, TTSAD.UDP_IN_PORT))
-                #sock.sendto(TTS, (TTSAD2.UDP_IN_IP, TTSAD2.UDP_IN_PORT))
+                sock.sendto(TTS, adressen["HBrain->TTSAD"])
+                
                 
     data = uerbergabe.get()
     if data[:13] == "#TTS#received": #Rueckgabe wann TTS Nachricht empfangen hat
@@ -289,8 +287,8 @@ while True:
             
             
             if satzzeichenFlag:
-                EmoFaniString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=False")
-                sock.sendto(EmoFaniString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+                EmoFaniString = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:talking=False")
+                sock.sendto(EmoFaniString, adressen["HBrain->EmoFani"])
             
 
             try:
@@ -364,16 +362,15 @@ while True:
                 #Sprache UDP (TTS)
                 time.sleep(0.1)
                 print TTS
-                sock.sendto(TTS, (TTSAD.UDP_IN_IP, TTSAD.UDP_IN_PORT))
-                #sock.sendto(TTS, (TTSAD2.UDP_IN_IP, TTSAD2.UDP_IN_PORT))
+                sock.sendto(TTS, adressen["HBrain->TTSAD"])
                 messageReceived = 0
                 
                 #Mundbewegug
                 time.sleep(0.5)
-                EmoFaniString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=True")
-                sock.sendto(EmoFaniString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+                EmoFaniString = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:talking=True")
+                sock.sendto(EmoFaniString, adressen["HBrain->EmoFani"])
                 sprechen = 1
-                sock.sendto("#HBRAIN#1#", (MasterBrainAD.UDP_IN_IP, MasterBrainAD.UDP_IN_PORT))
+                sock.sendto("#HBRAIN#1#", adressen["HBrain->MasterBrainAD"])
 
 
 #Emotion Weiterleitung
@@ -386,39 +383,39 @@ while True:
                 textString = textString[(a+1):]
                 print "Emotion: ", emotion
                 if emotion == 'neutral' or emotion == ':-|' or emotion == '0':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=neutral%100")
+                    emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:expression=neutral%100")
                 
                 elif emotion == 'happy' or emotion == ':-)' or emotion == '1':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=happy%100")
+                    emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:expression=happy%100")
 
                 elif emotion == 'sad' or emotion == ':-(' or emotion == '5':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=sad%100")
+                    emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:expression=sad%100")
                 
                 elif emotion == 'attentive':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=attentive%100")
+                    emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:expression=attentive%100")
                 
                 elif emotion == 'excited' or emotion == ':-O' or emotion == '2':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=excited%60")
+                    emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:expression=excited%60")
 
                 elif emotion == 'laughing' or emotion == ':-D' or emotion == '3':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=excited%100")
+                    emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:expression=excited%100")
 
                 elif emotion == ':-/':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:pleasure=-37")
-                    sock.sendto(emotion, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:arousal=-36")
+                    emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:pleasure=-37")
+                    sock.sendto(emotion, adressen["HBrain->EmoFani"])
+                    emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:arousal=-36")
         
                 elif emotion == 'relaxed':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=relaxed%100")
+                    emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:expression=relaxed%100")
                 
                 elif emotion == 'sleepy':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=sleepy%100")
+                    emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:expression=sleepy%100")
                 
                 elif emotion == 'frustrated' or emotion == '-.-' or emotion == '4':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:expression=frustrated%100")
+                    emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:expression=frustrated%100")
                 
                 elif emotion == 'idle:true':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=true")
+                    emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:idle=true")
                     idleFlag=1
                     try:
                         y.terminate()
@@ -432,7 +429,7 @@ while True:
                         
                 elif emotion == 'idle:false':
                     idleFlag=0
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=false")
+                    emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:idle=false")
                     
                 elif emotion == 'idle2:true':
                     if idleFlag2==0:
@@ -447,7 +444,7 @@ while True:
                     except:
                         print "laeuft noch garnicht"
 
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=false")
+                    emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:idle=false")
 
                 elif emotion == 'idle2:false':
                     try:
@@ -470,7 +467,7 @@ while True:
                     except:
                         print "laeuft noch garnicht"
                 
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=false")
+                    emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:idle=false")
 
                 elif emotion == 'idle3:false':
                     try:
@@ -480,12 +477,12 @@ while True:
                     idleFlag3=0
 
                 elif emotion == 'blush:true':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:blush=100")
+                    emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:blush=100")
                 elif emotion == 'blush:false':
-                    emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:blush=0")
+                    emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:blush=0")
 
 
-                sock.sendto(emotion, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+                sock.sendto(emotion, adressen["HBrain->EmoFani"])
 
 
 
@@ -498,16 +495,16 @@ while True:
                 textString = textString[b+1:]
     
         if textString == "" and sprechen == 0:
-            EmoFaniString = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:talking=False")
-            sock.sendto(EmoFaniString, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
-            sock.sendto("#HBRAIN#0#", (MasterBrainAD.UDP_IN_IP, MasterBrainAD.UDP_IN_PORT))
+            EmoFaniString = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:talking=False")
+            sock.sendto(EmoFaniString, adressen["HBrain->EmoFani"])
+            sock.sendto("#HBRAIN#0#", adressen["HBrain->MasterBrainAD"])
             
             if idleFlag:
-                emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=true")
+                emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:idle=true")
             else:
-                emotion = str("t:" + str(now) + ";s:"+ HBrainAD.UDP_IN_IP + ";p:" + str(HBrainAD.UDP_IN_PORT) + ";d:idle=false")
+                emotion = str("t:" + str(now) + ";s:"+ adressen["EmoFani->HBrain"][0] + ";p:" + str(adressen["EmoFani->HBrain"][1]) + ";d:idle=false")
 
-            sock.sendto(emotion, (EmoFaniAD.UDP_IN_IP, EmoFaniAD.UDP_IN_PORT))
+            sock.sendto(emotion, adressen["HBrain->EmoFani"])
             continue
 	    
 	    
