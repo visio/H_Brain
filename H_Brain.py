@@ -78,13 +78,6 @@ adressen = {"MasterBrainAD->HBrain" : ("134.103.204.95", 11005),
             }
 """
 
-print "HBrainAD     ", adressen["MasterBrainAD->HBrain"]
-print "MasterBrain  ", adressen["HBrain->MasterBrainAD"]
-print "EmoFani      ", adressen["HBrain->EmoFani"]
-print "TTS          ", adressen["HBrain->TTSAD"]
-print "MIRA         ", adressen["HBrain->MIRAAD"]
-
-
     
 try:
     a=0
@@ -106,6 +99,11 @@ except:
             'HBrain->EmoFani' '134.103.204.95' '11005'    
           '''
 
+print "HBrainAD     ", adressen["MasterBrainAD->HBrain"]
+print "MasterBrain  ", adressen["HBrain->MasterBrainAD"]
+print "EmoFani      ", adressen["HBrain->EmoFani"]
+print "TTS          ", adressen["HBrain->TTSAD"]
+print "MIRA         ", adressen["HBrain->MIRAAD"]
   
 
 
@@ -137,7 +135,7 @@ try:
                          socket.SOCK_DGRAM) # UDP
     sock.bind(adressen["MasterBrainAD->HBrain"])
 except:
-    print "Irgendeine IPadresse ist nicht ansprechbar / falsch"
+    print "EmfangsPort nicht oeffenbar", adressen["MasterBrainAD->HBrain"]
     exit()
 
 
