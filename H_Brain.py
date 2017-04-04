@@ -135,7 +135,7 @@ try:
                          socket.SOCK_DGRAM) # UDP
     sock.bind(adressen["MasterBrainAD->HBrain"])
 except:
-    print "EmfangsPort nicht oeffenbar", adressen["MasterBrainAD->HBrain"]
+    print "EmfangsPort nicht aufrufbar", adressen["MasterBrainAD->HBrain"]
     exit()
 
 
