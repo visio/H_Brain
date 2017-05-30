@@ -59,6 +59,8 @@ import java.util.concurrent.TimeUnit;
 public class HBrain implements Runnable {
 	protected int 		SelfPort;
 	protected InetAddress SelfIPAddress;	
+	protected int 		MasterPort;
+	protected InetAddress MasterIPAddress;
 	protected InetAddress TTSIPAddress;
 	protected int 		TTSPort;
 	protected InetAddress EMOIPAddress;
@@ -73,6 +75,8 @@ public class HBrain implements Runnable {
 		//default IPs and Ports
 		this.SelfIPAddress = InetAddress.getByName("localhost");
 		this.SelfPort = 11000;		
+		this.MasterIPAddress = InetAddress.getByName("localhost");
+		this.MasterPort = 11000;
 		this.TTSIPAddress = InetAddress.getByName("localhost");
 		this.TTSPort = 11003;
 		this.EMOIPAddress = InetAddress.getByName("localhost");
@@ -81,15 +85,17 @@ public class HBrain implements Runnable {
 		this.MiraPort = 11001;
 		
 		//args to variablen
-		if(args.length == 9 ){
+		if(args.length == 11 ){
 			this.SelfIPAddress = InetAddress.getByName(args[1]);
 			this.SelfPort = Integer.parseInt(args[2]);
-			this.TTSIPAddress = InetAddress.getByName(args[3]);
-			this.TTSPort = Integer.parseInt(args[4]);			
-			this.EMOIPAddress = InetAddress.getByName(args[5]);
-			this.EMOPort = Integer.parseInt(args[6]);			
-			this.MiraIPAddress = InetAddress.getByName(args[7]);
-			this.MiraPort = Integer.parseInt(args[8]);	
+			this.MasterIPAddress = InetAddress.getByName(args[3]);
+			this.MasterPort = Integer.parseInt(args[4]);
+			this.TTSIPAddress = InetAddress.getByName(args[5]);
+			this.TTSPort = Integer.parseInt(args[6]);			
+			this.EMOIPAddress = InetAddress.getByName(args[7]);
+			this.EMOPort = Integer.parseInt(args[8]);			
+			this.MiraIPAddress = InetAddress.getByName(args[9]);
+			this.MiraPort = Integer.parseInt(args[10]);	
 		}
 
 		//generate objects
