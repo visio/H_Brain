@@ -1,4 +1,4 @@
-package H_Brain;
+package HBrain;
 
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
  *Grundkategorien auftteilt
  */
 public class CommandParser {
-	private Main main;
+	private HBrain main;
 	protected LookAtPosition look_obj;
 	protected TextParser text_obj;
 	
@@ -20,7 +20,7 @@ public class CommandParser {
 	/**
 	 *Konstruktor, in dem der LookatPosition und der Textparser Thread gestartet wird.
 	 */
-	public CommandParser(Main main){
+	public CommandParser(HBrain main){
 		this.main = main;
 		this.look_obj = new LookAtPosition(this.main);
 		this.text_obj = new TextParser(this.main);
@@ -131,7 +131,7 @@ public class CommandParser {
 	 */
 	public static void main(String[] args) throws UnknownHostException {
 		// TODO Auto-generated method stub
-		Main Settings = new Main(args);		
+		HBrain Settings = new HBrain(args);		
 		CommandParser parser = new CommandParser(Settings);
 		
 		//nicht erlaubt muesste ignoriert werden

@@ -1,4 +1,4 @@
-package H_Brain;
+package HBrain;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -11,12 +11,12 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class EmoFani implements Runnable{
 	private final BlockingQueue queue;
-	private Main main;
+	private HBrain main;
 	private String state = "";
 	private boolean run;
 	private boolean bla = false;
 	
-	public EmoFani(Main main){
+	public EmoFani(HBrain main){
 		this.main = main;
 		this.queue = new LinkedBlockingQueue();
 	}

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package H_Brain;
+package HBrain;
 
 import java.net.UnknownHostException;
 import java.util.concurrent.BlockingQueue;
@@ -14,11 +14,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class LookAtPosition implements Runnable{
 	private final BlockingQueue queue;
-	private Main main;
+	private HBrain main;
 	private String position = null;
 	private boolean run;
 	
-	public LookAtPosition(Main main){
+	public LookAtPosition(HBrain main){
 		this.main = main;
 		this.queue = new LinkedBlockingQueue();
 	}
@@ -113,7 +113,7 @@ public class LookAtPosition implements Runnable{
 	 * TestMethode
 	 */
 	public static void main(String[] args) throws UnknownHostException {
-		Main Settings = new Main(args);
+		HBrain Settings = new HBrain(args);
 		LookAtPosition a = new LookAtPosition(Settings);
 		Thread t1 = new Thread( a );
 		t1.start();

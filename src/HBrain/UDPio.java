@@ -1,4 +1,4 @@
-package H_Brain;
+package HBrain;
 
 import java.io.IOException;
 import java.net.*;

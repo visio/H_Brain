@@ -1,7 +1,7 @@
 /**
  * 
  */
-package H_Brain;
+package HBrain;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class TextParser implements Runnable{
 	private final BlockingQueue queue;
 	private final BlockingQueue command;
-	private Main main;
+	private HBrain main;
 	protected EmoFani emo;
 	private String text;
 	private boolean run;
@@ -22,7 +22,7 @@ public class TextParser implements Runnable{
 	/**
 	 * Konstruktor, der den Emofani thread startet
 	 */
-	public TextParser(Main main){
+	public TextParser(HBrain main){
 		this.main = main;
 		this.emo = new EmoFani(main);
 		this.queue = new LinkedBlockingQueue();

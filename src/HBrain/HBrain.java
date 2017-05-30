@@ -37,7 +37,7 @@
     _______________________________________________________________________________________________
     */
 
-package H_Brain;
+package HBrain;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -56,7 +56,7 @@ import java.util.concurrent.TimeUnit;
  * main.addInput("#NAV##ROTHEAD#80#");
  * main.stop();
  */
-public class Main implements Runnable {
+public class HBrain implements Runnable {
 	protected int 		SelfPort;
 	protected InetAddress SelfIPAddress;	
 	protected InetAddress TTSIPAddress;
@@ -69,7 +69,7 @@ public class Main implements Runnable {
 	protected UDPio udpio;
 	protected CommandParser parser;
 	
-	public Main(String[] args) throws UnknownHostException{
+	public HBrain(String[] args) throws UnknownHostException{
 		//default IPs and Ports
 		this.SelfIPAddress = InetAddress.getByName("localhost");
 		this.SelfPort = 11000;		
@@ -140,7 +140,7 @@ public class Main implements Runnable {
 	 * Testmethode
 	 */
 	public static void main(String[] args) throws UnknownHostException {
-		Main main = new Main(args);
+		HBrain main = new HBrain(args);
 		main.start();
 		
 		//Im Gespraechstring darf Text vorkommen, der an TTS weitergeleitet wird {} sind Positoen die angeschaut werden 
