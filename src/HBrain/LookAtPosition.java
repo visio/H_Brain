@@ -65,7 +65,7 @@ public class LookAtPosition implements Runnable{
 			int pan = Integer.parseInt(positionA[0]);
 			int tilt = Integer.parseInt(positionA[1]);
 			
-			System.out.println("lookAt: " + position);
+			main.log("lookAt: " + position);
 			
 			this.main.udpio.send(this.main.MiraIPAddress, this.main.MiraPort, "#NAV##ROTHEAD#" + (-180 - pan) + "#");
 			
@@ -102,10 +102,10 @@ public class LookAtPosition implements Runnable{
 	        }
 
 	        oldPan = pan;
-	        System.out.println("Augen Nachfuehren beedet");
+	        main.log("Augen Nachfuehren beedet");
 			
 		}
-		System.out.println("Look at beendet");
+		main.log("Look at beendet");
 	}
 
 	

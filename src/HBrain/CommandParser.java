@@ -59,7 +59,7 @@ public class CommandParser {
 			this.text_obj.emo.ideleState(input);
 			}
 		else{
-			System.out.println("wrong command");
+			main.log("wrong command");
 		}
 
 	}
@@ -68,7 +68,7 @@ public class CommandParser {
 	 *weitergabe zum Textparser
 	 */
 	private void calculateTextString(String input){
-		System.out.println("Text: " + input);
+		main.log("Text: " + input);
 		this.text_obj.newText(input);
 	}
 	
@@ -76,7 +76,7 @@ public class CommandParser {
 	 *Interrupts für TTS resceiv und TTS finished
 	 */
 	private void TTShandler(String input){
-		System.out.println("TTS: " + input);
+		main.log("TTS: " + input);
 			this.text_obj.newCommand(input);		
 		}
 	
@@ -84,13 +84,13 @@ public class CommandParser {
 	 * Innterrupts für Position von Person die gegenueber steht
 	 */
 	private void PersonHandler(String input){
-		System.out.println("Person: " + input);
+		main.log("Person: " + input);
 		this.person = input;
 		if(this.see_to_person)
 			this.look_obj.lookAt(this.person);	
 	}
 	public void PersonHandler(Boolean input, String position){
-		System.out.println("Person: " + input);
+		main.log("Person: " + input);
 		this.see_to_person = input;
 		if(input)
 			this.look_obj.lookAt(this.person);
@@ -107,7 +107,7 @@ public class CommandParser {
 			input = input.replace("#ROTBODY#", "");
 			input = input.replace("#", "");
 			int bodyrotation = Integer.parseInt(input);
-			System.out.println("sendNAV: body" + bodyrotation);
+			main.log("sendNAV: body" + bodyrotation);
 			this.main.udpio.send(this.main.MiraIPAddress, this.main.MiraPort, "#NAV##ROTBODY#" + bodyrotation + "#");
 			
 		}
@@ -115,11 +115,11 @@ public class CommandParser {
 			input = input.replace("#ROTHEAD#", "");
 			input = input.replace("#", "");
 			int headrotation = Integer.parseInt(input);
-			System.out.println("sendNAV: head" + headrotation);
+			main.log("sendNAV: head" + headrotation);
 			this.main.udpio.send(this.main.MiraIPAddress, this.main.MiraPort, "#NAV##ROTHEAD#" + headrotation + "#");
 		}
 		else{
-			System.out.println("Nav do not understand: " + input);
+			main.log("Nav do not understand: " + input);
 		}
 		
 	}

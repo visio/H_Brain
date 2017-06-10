@@ -74,7 +74,7 @@ public class EmoFani implements Runnable{
 	 */
     public void sendExpression(String expression){
     	String message = ("t:" + System.currentTimeMillis() + ";s:127.0.0.1" + ";p:" + this.main.EMOPort + ";d:" + expression);
-    	System.out.println("sendEmo: " + message);
+    	main.log("sendEmo: " + message);
     	this.main.udpio.send(this.main.EMOIPAddress, this.main.EMOPort, message);
 		try {
 			TimeUnit.MILLISECONDS.sleep(5);;
@@ -130,7 +130,7 @@ public class EmoFani implements Runnable{
 					this.run = false;
 					continue;
 				}
-				System.out.println("IDLE: " + this.state);
+				main.log("IDLE: " + this.state);
 				
 			}
 			
@@ -210,6 +210,6 @@ public class EmoFani implements Runnable{
 
 			}
 		}
-		System.out.println("emo beendet");
+		main.log("emo beendet");
 	}
 }

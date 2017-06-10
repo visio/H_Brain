@@ -126,7 +126,7 @@ public class TextParser implements Runnable{
 				}
 			}
 		}
-		System.out.println("text beendet");
+		main.log("text beendet");
 	}
 	
 	/**
@@ -148,7 +148,7 @@ public class TextParser implements Runnable{
 		
 		//Senden an TTS
 		String c = null;
-		System.out.println("sendTTS: " + text);
+		main.log("sendTTS: " + text);
 		this.main.udpio.send(this.main.TTSIPAddress, this.main.TTSPort, text);
 		
 		//warten auf reaktion von TTS
@@ -160,11 +160,11 @@ public class TextParser implements Runnable{
 				c = "received";
 				e.printStackTrace();
 			}
-			if(c == null) System.out.println("TTS not available, send again");
+			if(c == null) main.log("TTS not available, send again");
 		}while(c == null);
 
 		//warten aufs fertig labern
-		System.out.println("waiting for finishing jabbering...");
+		main.log("waiting for finishing jabbering...");
 		try {
 			c = (String) this.command.poll(60L, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
