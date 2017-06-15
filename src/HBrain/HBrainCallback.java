@@ -15,7 +15,7 @@ class ResponseBrain implements HBrainCallback{
 				return true;
 			}
 		}
-		System.err.println("responseBrain callback: There is a problem with param");
+		System.err.println("responseBrain callback: message is null");
 		return false;
 	}
 }
@@ -27,7 +27,7 @@ class Log implements HBrainCallback{
 				System.out.println(msg);
 				return true;
 		}
-		System.err.println("log callback: There is a problem with param");
+		System.err.println("log callback: message is null");
 		return false;
 	}
 }

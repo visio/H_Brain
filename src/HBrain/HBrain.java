@@ -82,6 +82,11 @@ public class HBrain implements Runnable {
 	
 	
 	public HBrain(String[] args) throws UnknownHostException{		
+		
+		for (String string : args) {
+			System.out.println(string);
+		}
+		
 		//set Callbacks
 		this.registerCallbackLog(new Log());
 		this.registerCallbackResponseBrain(new ResponseBrain());
@@ -116,16 +121,16 @@ public class HBrain implements Runnable {
 		this.udpio = new UDPio(this.SelfPort);
 		this.parser = new CommandParser(this);
 		
-//		log("SelfIPAddress: " + this.SelfIPAddress);
-//		log("SelfPort: " + this.SelfPort);
-//		log("MasterIPAddress: " + this.MasterIPAddress);
-//		log("MasterPort: " + this.MasterPort);
-//		log("TTSIPAddress: " + this.TTSIPAddress);
-//		log("TTSPort: " + this.TTSPort);
-//		log("EMOIPAddress: " + this.EMOIPAddress);
-//		log("EMOPort: " + this.EMOPort);
-//		log("MiraIPAddress: " + this.MiraIPAddress);
-//		log("MiraPort: " + this.MiraPort);
+		log("SelfIPAddress: " + this.SelfIPAddress);
+		log("SelfPort: " + this.SelfPort);
+		log("MasterIPAddress: " + this.MasterIPAddress);
+		log("MasterPort: " + this.MasterPort);
+		log("TTSIPAddress: " + this.TTSIPAddress);
+		log("TTSPort: " + this.TTSPort);
+		log("EMOIPAddress: " + this.EMOIPAddress);
+		log("EMOPort: " + this.EMOPort);
+		log("MiraIPAddress: " + this.MiraIPAddress);
+		log("MiraPort: " + this.MiraPort);
 		
 	}
 	

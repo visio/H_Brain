@@ -55,6 +55,7 @@ public class UDPio
 			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
 			try {
 				this.clientSocket.send(sendPacket);
+				HBrain.getInstance().log("Packet sent:" + IPAddress.toString() + ":" + port + " -> " + message);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
