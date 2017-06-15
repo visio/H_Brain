@@ -192,95 +192,95 @@ public class HBrain implements Runnable {
 		hbrain.start();
 		
 		
-		//Im Gespraechstring darf Text vorkommen, der an TTS weitergeleitet wird {} sind Positoen die angeschaut werden 
-		//sollen und[] sind Emotionen. Nichts wird automatisch rueckgestellt! Gespraechstrings werden der Reihe nach 
-		//bearbeitet (kein Abbruch, bei neuem Gespraechstring)
-		hbrain.addInput("#BRAIN##TEXT#ich bin ein Test.{35,27}[:-)]schaue. hier{Person}[idle3:true]");
-		
-		try {
-			TimeUnit.SECONDS.sleep(1);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//muss gesendet werden, wenn TTS die Nachricht empfangen hat!
-		hbrain.addInput("#TTS#received");
-		try {
-			TimeUnit.SECONDS.sleep(1);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//muss gesendet werden, wenn TTS fertig mit dem sprechen ist!
-		hbrain.addInput("#TTS#finished");
-		try {
-			TimeUnit.SECONDS.sleep(1);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		hbrain.addInput("#TTS#received");
-		try {
-			TimeUnit.SECONDS.sleep(1);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		hbrain.addInput("#TTS#finished");
-		try {
-			TimeUnit.SECONDS.sleep(1);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		hbrain.addInput("#TTS#received");
-		try {
-			TimeUnit.SECONDS.sleep(1);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		hbrain.addInput("#TTS#finished");
-		try {
-			TimeUnit.SECONDS.sleep(1);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
-		
-		hbrain.addInput("#TTS#received");
-		try {
-			TimeUnit.SECONDS.sleep(1);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		hbrain.addInput("#TTS#finished");
-		try {
-			TimeUnit.SECONDS.sleep(1);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//Einen Punkt an dem sich die der Aktuelle Gespraechspartner befindet. Kann staendig zwischdrin gesedet werden. 
-		//Durch {Person} im Gespraechstring schaut Leonie immer den Gespraechspartner an. nach dem ein seperater Punkt 
-		//angeschaut wurde, muss erst wieder {Person} gesendet werden, damit Leonie wieder den Gespraechspartner anschaut.
-		hbrain.addInput("#HBRAIN##PERSON#{67,36}");
-		
-		//#NAV##ROTBODY#[angle:int]# clockwise
-		hbrain.addInput("#NAV##ROTBODY#90#");
-		//#NAV##ROTHEAD#[angle:int]#
-		hbrain.addInput("#NAV##ROTHEAD#80#");
-		
-		
-		try {
-			TimeUnit.SECONDS.sleep(10);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		hbrain.stop();
+//		//Im Gespraechstring darf Text vorkommen, der an TTS weitergeleitet wird {} sind Positoen die angeschaut werden 
+//		//sollen und[] sind Emotionen. Nichts wird automatisch rueckgestellt! Gespraechstrings werden der Reihe nach 
+//		//bearbeitet (kein Abbruch, bei neuem Gespraechstring)
+//		hbrain.addInput("#BRAIN##TEXT#thats a Test.{35,27}[:-)]look here{Person}[idle3:true]");
+//		
+//		try {
+//			TimeUnit.SECONDS.sleep(5);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		//muss gesendet werden, wenn TTS die Nachricht empfangen hat!
+//		hbrain.addInput("#TTS#received");
+//		try {
+//			TimeUnit.SECONDS.sleep(1);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		//muss gesendet werden, wenn TTS fertig mit dem sprechen ist!
+//		hbrain.addInput("#TTS#finished");
+//		try {
+//			TimeUnit.SECONDS.sleep(1);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		hbrain.addInput("#TTS#received");
+//		try {
+//			TimeUnit.SECONDS.sleep(1);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		hbrain.addInput("#TTS#finished");
+//		try {
+//			TimeUnit.SECONDS.sleep(1);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		hbrain.addInput("#TTS#received");
+//		try {
+//			TimeUnit.SECONDS.sleep(1);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		hbrain.addInput("#TTS#finished");
+//		try {
+//			TimeUnit.SECONDS.sleep(1);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}		
+//		
+//		hbrain.addInput("#TTS#received");
+//		try {
+//			TimeUnit.SECONDS.sleep(1);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		hbrain.addInput("#TTS#finished");
+//		try {
+//			TimeUnit.SECONDS.sleep(1);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		//Einen Punkt an dem sich die der Aktuelle Gespraechspartner befindet. Kann staendig zwischdrin gesedet werden. 
+//		//Durch {Person} im Gespraechstring schaut Leonie immer den Gespraechspartner an. nach dem ein seperater Punkt 
+//		//angeschaut wurde, muss erst wieder {Person} gesendet werden, damit Leonie wieder den Gespraechspartner anschaut.
+//		hbrain.addInput("#HBRAIN##PERSON#{67,36}");
+//		
+//		//#NAV##ROTBODY#[angle:int]# clockwise
+//		hbrain.addInput("#NAV##ROTBODY#90#");
+//		//#NAV##ROTHEAD#[angle:int]#
+//		hbrain.addInput("#NAV##ROTHEAD#80#");
+//		
+//		
+//		try {
+//			TimeUnit.SECONDS.sleep(10);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//		hbrain.stop();
 			
 	}
 	
