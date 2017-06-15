@@ -113,7 +113,7 @@ public class LookAtPosition implements Runnable{
 	 * TestMethode
 	 */
 	public static void main(String[] args) throws UnknownHostException {
-		HBrain Settings = new HBrain(args);
+		HBrain Settings = HBrain.instanceOf(args);
 		LookAtPosition a = new LookAtPosition(Settings);
 		Thread t1 = new Thread( a );
 		t1.start();

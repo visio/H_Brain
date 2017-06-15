@@ -66,7 +66,7 @@ public class TextParser implements Runnable{
 			//wenn queue emty aufhoeren zu sprechen
 			if(this.queue.isEmpty()){
 				this.emo.blabla(false);
-				this.main.udpio.send(this.main.MasterIPAddress, this.main.MasterPort, "#HBRAIN#0#");
+				this.main.responseBrain("#HBRAIN#0#");
 			}
 			
 			//get new command
@@ -83,7 +83,7 @@ public class TextParser implements Runnable{
 				continue;
 			}
 			
-			this.main.udpio.send(this.main.MasterIPAddress, this.main.MasterPort, "#HBRAIN#1#");
+			this.main.responseBrain("#HBRAIN#1#");
 			
 			//zerlegen des Textstrings
 			String[] textA1 = this.text.split("\\{");

@@ -131,7 +131,7 @@ public class CommandParser {
 	 */
 	public static void main(String[] args) throws UnknownHostException {
 		// TODO Auto-generated method stub
-		HBrain Settings = new HBrain(args);		
+		HBrain Settings = HBrain.instanceOf(args);
 		CommandParser parser = new CommandParser(Settings);
 		
 		//nicht erlaubt muesste ignoriert werden

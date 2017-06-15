@@ -45,6 +45,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
+
 /**
  * Main Klasse des Hbrains. Verbindet den UDP server mit dem Textparser.
  * 
@@ -58,7 +59,16 @@ import java.util.concurrent.TimeUnit;
  * main.addInput("#NAV##ROTHEAD#80#");
  * main.stop();
  */
+
 public class HBrain implements Runnable {
+	private static HBrain instance = null;
+	
+	protected UDPio udpio;
+	protected CommandParser parser;
+	
+	private HBrainCallback log;
+	private HBrainCallback responseBrain;
+	
 	protected int 		SelfPort;
 	protected InetAddress SelfIPAddress;	
 	protected int 		MasterPort;
@@ -70,13 +80,8 @@ public class HBrain implements Runnable {
 	protected InetAddress MiraIPAddress;
 	protected int 		MiraPort;
 	
-	protected UDPio udpio;
-	protected CommandParser parser;
 	
-	private HBrainCallback log;
-	private HBrainCallback responseBrain;
-	
-	public HBrain(String[] args) throws UnknownHostException{
+	public HBrain(String[] args) throws UnknownHostException{		
 		//set Callbacks
 		this.registerCallbackLog(new Log());
 		this.registerCallbackResponseBrain(new ResponseBrain());
@@ -110,8 +115,31 @@ public class HBrain implements Runnable {
 		//generate objects
 		this.udpio = new UDPio(this.SelfPort);
 		this.parser = new CommandParser(this);
+		
+//		log("SelfIPAddress: " + this.SelfIPAddress);
+//		log("SelfPort: " + this.SelfPort);
+//		log("MasterIPAddress: " + this.MasterIPAddress);
+//		log("MasterPort: " + this.MasterPort);
+//		log("TTSIPAddress: " + this.TTSIPAddress);
+//		log("TTSPort: " + this.TTSPort);
+//		log("EMOIPAddress: " + this.EMOIPAddress);
+//		log("EMOPort: " + this.EMOPort);
+//		log("MiraIPAddress: " + this.MiraIPAddress);
+//		log("MiraPort: " + this.MiraPort);
+		
 	}
-
+	
+	public static HBrain instanceOf(String[] args) throws UnknownHostException{
+		if(instance==null)
+			instance = new HBrain(args);
+		
+		return instance;
+	}
+	
+	public static HBrain getInstance(){
+		return instance;
+	}
+	
 	/**
 	 * verbindet in dauerschleife, den UDP server mit dem Textparser
 	 */
@@ -155,7 +183,7 @@ public class HBrain implements Runnable {
 	 * Testmethode
 	 */
 	public static void main(String[] args) throws UnknownHostException {
-		HBrain hbrain = new HBrain(args);
+		HBrain hbrain = HBrain.instanceOf(args);
 		hbrain.start();
 		
 		
@@ -265,6 +293,10 @@ public class HBrain implements Runnable {
 	
 	public boolean responseBrain(String msg){
 		return this.responseBrain.call(msg);
+	}
+
+	public UDPio getUdpio() {
+		return udpio;
 	}
 
 
